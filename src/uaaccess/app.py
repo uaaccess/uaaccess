@@ -260,7 +260,7 @@ class UAAccess(toga.App):
 
 
 	async def initialize(self):
-		self.main_window.title = f"{self.formal_name} [{self.instance.get("/devices/0/DeviceName/value")}]"
+		self.main_window.title = f"{self.formal_name} [{self.instance.get('/devices/0/DeviceName/value')}]"
 		events.register_events()
 		self.ui_inputs_label = toga.Label("Inputs", style=Pack(padding=5))
 		self.ui_inputs_list = toga.Selection(style=Pack(padding=5), on_change=self.on_input_selected, accessor="name")
