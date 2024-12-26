@@ -1,11 +1,11 @@
 Metadata-Version: 2.1
-Briefcase-Version: 0.3.17
+Briefcase-Version: 0.3.20
 Name: uaaccess
 Formal-Name: UAAccess
 App-ID: org.uaaccess.uaaccess.uaaccess
 Version: 0.0.1
 Home-page: https://uaaccess.org
 Download-URL: https://uaaccess.org
-Author: Dan Gililov, Ethin Probst
-Author-email: hello@uaaccess.org
+Author: Dan Gililov, Ethin Probst, Ivan Soto
+Author-email: N/A
 Summary: A screen-reader-accessible alternative to the Universal Audio Console software.
