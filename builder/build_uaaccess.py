@@ -1,6 +1,7 @@
 import os
 import sys
 import venv
+import platform
 from subprocess import run, CalledProcessError
 
 def run_command(command):
@@ -38,6 +39,7 @@ def build_package(venv_bin, build_as_zip=True):
     print("Building the project...")
     update_packages(venv_bin)
     package_type = 'zip' if build_as_zip else 'msi'
+    if package_type == "msi" and platform.system() == "Darwin": package_type = "dmg"
     print(f"Packaging the project as {package_type.upper()}...")
     run_command(f"{os.path.join(venv_bin, 'briefcase')} package -p {package_type} -u")
 
