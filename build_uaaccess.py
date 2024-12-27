@@ -26,11 +26,17 @@ def install_packages(venv_bin, packages):
         print(f"Installing package '{package}'...")
         run_command(f"{os.path.join(venv_bin, 'pip')} install {package}")
 
-def build_and_package(venv_bin, build_as_zip=True):
+def update_packages(venv_bin, run_after_update=False):
+    print("Updating project dependencies...")
+    command = f"{os.path.join(venv_bin, 'briefcase')} dev -r"
+    if not run_after_update:
+        command += " --no-run"
+    return run_command(command)
+
+def build_package(venv_bin, build_as_zip=True):
     """Build and package the project."""
     print("Building the project...")
-    run_command(f"{os.path.join(venv_bin, 'briefcase')} dev -r")
-
+    update_packages(venv_bin)
     package_type = 'zip' if build_as_zip else 'msi'
     print(f"Packaging the project as {package_type.upper()}...")
     run_command(f"{os.path.join(venv_bin, 'briefcase')} package -p {package_type} -u")
@@ -49,7 +55,7 @@ def main():
     if os.getenv('VIRTUAL_ENV'):
         print("Virtual environment already active.")
         install_packages(venv_bin, required_packages)
-        build_and_package(venv_bin, build_as_zip)
+        build_package(venv_bin, build_as_zip)
     else:
         create_virtual_env(venv_dir)
         install_packages(venv_bin, required_packages)
