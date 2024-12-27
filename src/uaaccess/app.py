@@ -79,7 +79,7 @@ class UAAccess(toga.App):
 					if "values" in prop:
 						edit = toga.Selection(id=path, items=prop["values"], value=prop["value"] if "value" in prop else None, on_change=self.on_prop_string_enum_change, enabled=not prop["readonly"] if "readonly" in prop else True)
 					else:
-						edit = toga.TextInput(id=path, value=prop["value"] if "value" in prop else None, readonly = prop["readonly"] if "readonly" in prop else False, on_confirm=self.on_prop_string_change)
+						edit = toga.TextInput(id=path, value=prop["value"] if "value" in prop else None, readonly = prop["readonly"] if "readonly" in prop else True if name == "IOType" else False, on_confirm=self.on_prop_string_change)
 					box.add(label)
 					box.add(edit)
 				case "float":
