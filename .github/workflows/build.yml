@@ -1,0 +1,65 @@
+name: Build and Package
+
+on:
+  workflow_dispatch:
+
+jobs:
+  mac_build:
+    name: Build and Package on macOS
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies and run build script
+        run: |
+          python -m venv uaaccess_env
+          source uaaccess_env/bin/activate
+          pip install --upgrade pip
+          cd builder
+          python build_uaaccess.py
+        env:
+          BRIEFCASE_PLATFORM: macOS
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: mac-package
+          path: dist/*
+
+  windows_build:
+    name: Build and Package on Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: Install Visual Studio Build Tools
+        run: |
+          choco install -y visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --quiet --norestart"
+
+      - name: Install dependencies and run build script
+        run: |
+          python -m venv uaaccess_env
+          uaaccess_env\Scripts\activate
+          pip install --upgrade pip
+          cd builder
+          python build_uaaccess.py
+        env:
+          BRIEFCASE_PLATFORM: windows
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-package
+          path: dist/*
