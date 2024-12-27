@@ -10,8 +10,7 @@ To develop the project, or to build a package, follow these instructions:
 3. Clone this repository: `git clone https://github.com/uaaccess/uaaccess.git` then `cd uaaccess`.
 4. Create a virtual environment: `python -m venv uaaccess_env`.
 5. Activate the environment you just created with e.g. `uaaccess_env\scripts\activate`.
-6. with the environment activated, run `pip install briefcase`.
-7. Change into the cloned directory. Then:
+6. With the environment activated, run `pip install briefcase`. Then:
     * If you want to run the code, run `briefcase dev -r`. This will hopefully only need to be run once, and will install all dependencies. In future, unless dependency versions are updated, you need only run `briefcase dev`.
     * If you want to build a distributable package, run `briefcase package -p zip -u` (or, if you want to build an MSI, change `zip` in the aforementioned command to `msi`). The resulting package will be in the `dist` directory.
 
