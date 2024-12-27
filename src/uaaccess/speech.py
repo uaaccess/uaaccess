@@ -9,6 +9,7 @@ synth = None
 def init():
 	global synth
 	if sys.platform == "win32":
+		tolk.try_sapi(True)
 		tolk.load()
 	elif sys.platform == "darwin":
 		synth = nsss.NSSS()
