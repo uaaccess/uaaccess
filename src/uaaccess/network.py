@@ -28,6 +28,7 @@ class NetworkManager:
 			"MixInSource": "Source",
 			"MirrorsToDigital": "Mirrors to Digital",
 			"RecordPreEffects": "Record Effects",
+			"SendPostFader": "Pre/Post"
 		}
 		if sys.platform != "darwin" or platform.machine() != "x86_64":
 			self.json_parser = JSONParser()
