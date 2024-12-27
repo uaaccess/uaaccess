@@ -12,7 +12,13 @@ To develop the project, or to build a package, follow these instructions:
 5. Activate the environment you just created with e.g. `uaaccess_env\scripts\activate`.
 6. With the environment activated, run `pip install briefcase`. Then:
     * If you want to run the code, run `briefcase dev -r`. This will hopefully only need to be run once, and will install all dependencies. In future, unless dependency versions are updated, you need only run `briefcase dev`.
-    * If you want to build a distributable package, run `briefcase package -p zip -u` (or, if you want to build an MSI, change `zip` in the aforementioned command to `msi`). The resulting package will be in the `dist` directory.
+    * If you want to build a distributable package:
+        * On Windows, run `briefcase package -p zip -u` (or, if you want to build an MSI, change `zip` in the aforementioned command to `msi`).
+        * On MacOS, run:
+            * `briefcase package -p zip -u`, for a zip package;
+            * `briefcase package -p dmg -u`, for a disk image; and/or
+            * `briefcase package -p pkg -u`, for a MacOS installer.
+        The resulting package will be in the `dist` directory.
     * If you want to just install dependencies, run `briefcase dev -r --no-run`.
 
 ## License
