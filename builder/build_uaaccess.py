@@ -42,6 +42,8 @@ def build_package(venv_bin, build_as_zip=True):
     run_command(f"{os.path.join(venv_bin, 'briefcase')} package -p {package_type} -u")
 
 def main():
+    #back out to the main working directory
+    os.chdir("../")
     # Configuration
     required_packages = ["briefcase"]
     build_as_zip = False  # Change to true to build as Zip
