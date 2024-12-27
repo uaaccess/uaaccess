@@ -24,14 +24,14 @@ test_sources = [
 requires = [
     "blinker~=1.9.0",
     "clipboard~=0.0.4",
-    "cysimdjson~=23.8",
+    "cysimdjson~=23.8 ; (sys_platform != 'darwin') or (platform_machine != 'x86_64')",
     "pedalboard~=0.9.16",
 ]
 test_requires = [    "pytest", "hypothesis"]
 
 
 [tool.briefcase.app.uaaccess.macOS]
-universal_build = false
+universal_build = true
 requires = [
     "toga-cocoa~=0.4.4",
     "std-nslog~=1.0.0",

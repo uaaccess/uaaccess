@@ -1,12 +1,16 @@
 import asyncio
-from cysimdjson import *
+import sys
+import platform
+if sys.platform == "darwin" and platform.machine() == "x86_64":
+	import json
+else:
+	from cysimdjson import *
 from inspect import iscoroutinefunction
 from typing import *
 from ipaddress import IPv4Address, IPv6Address
 from . import speech
 from blinker import signal
 import time
-import sys
 
 class NetworkManager:
 	def __init__(self):
@@ -25,7 +29,8 @@ class NetworkManager:
 			"MirrorsToDigital": "Mirrors to Digital",
 			"RecordPreEffects": "Record Effects",
 		}
-		self.json_parser = JSONParser()
+		if sys.platform != "darwin" or platform.machine() != "x86_64":
+			self.json_parser = JSONParser()
 		self.handle_events_normally = asyncio.Event()
 		if sys.executable.find("python") != -1:
 			self.packet_log = []
@@ -185,7 +190,11 @@ class NetworkManager:
 			self.packet_log.append({"time": time.time(), "type": "conn", "message": None})
 
 	async def process_message(self, message: bytes):
-		resp: dict[str, Any] = self.json_parser.loads(message.decode()).export()
+		resp: dict[str, Any] = {}
+		if sys.platform == "darwin" and platform.machine() == "x86_64":
+			resp = json.loads(message.decode())
+		else:
+			resp = self.json_parser.loads(message.decode()).export()
 		if "path" in resp and resp["path"] == "/uaaccess_is_ready" and "parameters" in resp and "handle_events_normally" in resp["parameters"]:
 			self.handle_events_normally.set()
 			await signal("UAAccessInitialized").send_async(self)
@@ -194,7 +203,7 @@ class NetworkManager:
 			print (f"Warning: {resp["path"]}: {resp["error"]}")
 			return
 		if not "data" in resp or not "path" in resp:
-			print(f"Warning: received invalid response: {resp.export()}")
+			print(f"Warning: received invalid response: {message}")
 			return
 		data: Union[Dict[str, Any], int, float, bool] = resp['data']
 		path: str = resp['path']
