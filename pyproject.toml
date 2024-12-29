@@ -5,7 +5,7 @@ bundle = "org.uaaccess.uaaccess"
 version = "0.0.1"
 url = "https://uaaccess.org"
 license.file = "LICENSE"
-author = "Dan Gililov, Ethin Probst, Ivan Soto"
+author = "Dan Gililov, Ethin Probst, Ivan Soto, Carter Temm"
 author_email = "N/A"
 
 [tool.briefcase.app.uaaccess]
