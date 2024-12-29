@@ -21,6 +21,14 @@ def create_virtual_env(venv_dir):
     else:
         print("Virtual environment already exists.")
 
+def generate_package_type(build_as_zip=True):
+    """Returns "zip" on Windows and "dmg" on MacOS if build_as_zip, or "pkg" on MacOS or "MSI" on Windows."""
+    if build_as_zip:
+        return "zip" if platform.system() == "Windows" else "dmg"
+    else:
+        return "msi" if platform.system() == "Windows" else "pkg"
+
+
 def install_packages(venv_bin, packages):
     """Install required packages in the virtual environment."""
     for package in packages:
@@ -38,9 +46,7 @@ def build_package(venv_bin, build_as_zip=True):
     """Build and package the project."""
     print("Building the project...")
     update_packages(venv_bin)
-    package_type = 'zip' if build_as_zip else 'msi'
-    if package_type == "msi" and platform.system() == "Darwin":
-        package_type = "dmg"
+    package_type = generate_package_type(build_as_zip)
     print(f"Packaging the project as {package_type.upper()}...")
     command = f"{os.path.join(venv_bin, 'briefcase')} package -p {package_type} -u"
     if platform.system() == "Darwin":
@@ -52,7 +58,8 @@ def main():
     os.chdir("../")
     # Configuration
     required_packages = ["briefcase"]
-    build_as_zip = False  # Change to true to build as Zip
+    # .zip is built as .dmg and .msi as .pkg on MacOS
+    build_as_zip = "zip" in sys.argv
 
     # Paths
     project_dir = os.getcwd()
