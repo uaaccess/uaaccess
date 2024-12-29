@@ -1,0 +1,90 @@
+name: Publish Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*' # Trigger on tags starting with 'v'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    needs:
+      - mac_build
+      - windows_build
+    steps:
+      # Download MacOS Artifacts
+      - name: Download MacOS Installer
+        uses: actions/download-artifact@v4
+        with:
+          name: mac-installer-package
+          path: artifacts/mac/installer
+
+      - name: Download MacOS Portable
+        uses: actions/download-artifact@v4
+        with:
+          name: mac-portable-package
+          path: artifacts/mac/portable
+
+      # Download Windows Artifacts
+      - name: Download Windows Installer
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-installer-package
+          path: artifacts/windows/installer
+
+      - name: Download Windows Portable
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-portable-package
+          path: artifacts/windows/portable
+
+      # Create GitHub Release
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          body: |
+            ### Release Notes
+            - Automated release for ${{ github.ref_name }}
+            - Includes MacOS and Windows builds (Installer and Portable)
+          draft: true
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Upload MacOS Artifacts
+      - name: Upload MacOS Installer Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/mac/installer/*.pkg
+          asset_name: mac-installer.pkg
+          asset_content_type: application/octet-stream
+
+      - name: Upload MacOS Portable Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/mac/portable/*.dmg
+          asset_name: mac-portable.dmg
+          asset_content_type: application/octet-stream
+
+      # Upload Windows Artifacts
+      - name: Upload Windows Installer Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/windows/installer/*.msi
+          asset_name: windows-installer.msi
+          asset_content_type: application/octet-stream
+
+      - name: Upload Windows Portable Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/windows/portable/*.zip
+          asset_name: windows-portable.zip
+          asset_content_type: application/zip
