@@ -7,6 +7,12 @@ on:
       - 'v*' # Trigger on tags starting with 'v'
 
 jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validation Step
+        run: echo "Starting the release workflow"
+
   publish:
     runs-on: ubuntu-latest
     needs:
