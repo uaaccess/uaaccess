@@ -238,12 +238,12 @@ class UAAccess(toga.App):
 			await self.instance.preload_tree("127.0.0.1")
 			await self.initialize()
 		except Exception:
-			if await self.main_window.question_dialog("Alert", "It does not appear that the UA console is running on this system. Would you like to connect to a remote UA console?"):
+			if await self.main_window.dialog(toga.QuestionDialog("Alert", "It does not appear that the UA console is running on this system. Would you like to connect to a remote UA console?")):
 				try:
 					self.connection_dialog = ConnectionRequester(self.handle_connection_selection)
 					self.connection_dialog.show()
 				except Exception as e:
-					await self.main_window.error_dialog("Error", f"No connection to the remote UA console could be established. Reason: {str(e)}")
+					await self.main_window.dialog(toga.ErrorDialog("Error", f"No connection to the remote UA console could be established. Reason: {str(e)}"))
 					self.exit()
 			else:
 				self.exit()
@@ -255,7 +255,7 @@ class UAAccess(toga.App):
 			await self.instance.preload_tree(ipaddr)
 			await self.initialize()
 		except Exception as e:
-			await self.main_window.error_dialog("Error", f"No connection to the remote UA console could be established. Reason: {str(e)}")
+			await self.main_window.dialog(toga.ErrorDialog("Error", f"No connection to the remote UA console could be established. Reason: {str(e)}"))
 			self.exit()
 
 
@@ -459,23 +459,23 @@ class UAAccess(toga.App):
 
 	async def export_tree(self, command, **kwargs):
 		if self.instance is None:
-			await self.main_window.error_dialog("Error", "UAAccess is not connected to a device!")
+			await self.main_window.dialog(toga.ErrorDialog("Error", "UAAccess is not connected to a device!"))
 			return
-		fname = await self.main_window.save_file_dialog("Specify schema file name", f"schema.zip", ["zip"])
+		fname = await self.main_window.dialog(toga.SaveFileDialog("Specify schema file name", f"schema.zip", ["zip"]))
 		if fname is None:
-			await self.main_window.error_dialog("Error", "Please specify a file name for schema export.")
+			await self.main_window.dialog(toga.ErrorDialog("Error", "Please specify a file name for schema export."))
 			return
 		with zipfile.ZipFile(fname, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9, allowZip64=True) as zipf:
 			await self.add_properties_to_zip(zipf, self.instance.tree["data"]["properties"], '')
 			await self.add_commands_to_zip(zipf, self.instance.tree["data"]["commands"], '')
 			if "children" in self.instance.tree["data"]:
 				await self.recurse_children(zipf, self.instance.tree["data"]["children"], '')
-			await self.main_window.info_dialog("Done", f"Schema exported to {fname}. Please visit the UAAccess issue tracker, click the plus sign link, and click 'new document' to upload it.")
+			await self.main_window.dialog(toga.InfoDialog("Done", f"Schema exported to {fname}. Please visit https://github.com/uaaccess/uaaccess/issues, click 'New issue', select 'Schema Dump', enter all requested details, and attach the dump, then click submit."))
 
 	async def enable_packet_logging(self, command, **kwargs):
-		fname = await self.main_window.save_file_dialog("Specify packet log file", "packets.log", ["log", "txt"])
+		fname = await self.main_window.dialog(toga.SaveFileDialog("Specify packet log file", "packets.log", ["log", "txt"]))
 		if fname is None:
-			await self.main_window.error_dialog("Error", "Please specify a file name for schema export.")
+			await self.main_window.dialog(self.ErrorDialog("Error", "Please specify a file name for schema export."))
 			return
 		try:
 			if self.log_file is not None and not self.log_file.closed:
@@ -487,7 +487,7 @@ class UAAccess(toga.App):
 			self.instance.packet_log.clear()
 			signal("NewPacket").connect(self.on_new_packet)
 		except OSError as e:
-			await self.main_window.error_dialog("Error", f"Could not open file for writing: {str(e)}")
+			await self.main_window.dialog(toga.ErrorDialog("Error", f"Could not open file for writing: {str(e)}"))
 
 	async def on_new_packet(self, sender, *args, **kwargs):
 		packet = kwargs["packet"]
@@ -519,7 +519,7 @@ class UAAccess(toga.App):
 		asyncio.create_task(self.handle_exception_async(loop, context))
 
 	async def handle_exception_async(self, loop, context):
-		await self.main_window.error_dialog("Critical error", "A critical error occurred and UAAccess has crashed. The error and any associated context will be copied to your clipboard when you close this dialog. Please open an issue on the UAAccess issue tracker and include this information in your bug report to assist us in fixing this problem.")
+		await self.main_window.dialog(toga.ErrorDialog("Critical error", "A critical error occurred and UAAccess has crashed. The error and any associated context will be copied to your clipboard when you close this dialog. Please open an issue on the UAAccess issue tracker and include this information in your bug report to assist us in fixing this problem."))
 		ctx = []
 		ctx.append(f"Time: {time.ctime()} ({time.time()}, {time.time_ns()})")
 		ctx.append(f"Loop: {loop}")

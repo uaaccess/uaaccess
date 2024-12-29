@@ -55,7 +55,7 @@ class SendsDialog(toga.Window):
 				send_widget.on_change = handler
 
 	async def on_prop_float_change(self, widget, *args, **kwargs):
-		await self.instance.send_request(f"set {self.uuid_map[widget.id]} {widget.value}")
+		await self.instance.send_request(f"set {widget.id} {widget.value}")
 
 	def close_window(self, widget, *args, **kwargs):
 		self.close()
