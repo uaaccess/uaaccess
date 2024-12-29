@@ -23,14 +23,21 @@ jobs:
           pip install --upgrade pip
           cd builder
           python build_uaaccess.py
+          python build_uaaccess.py zip
         env:
           BRIEFCASE_PLATFORM: macOS
 
-      - name: Upload artifacts
+      - name: Upload installer
         uses: actions/upload-artifact@v3
         with:
-          name: mac-package
-          path: dist/*
+          name: mac-installer-package
+          path: dist/*.pkg
+
+      - name: Upload portable
+        uses: actions/upload-artifact@v3
+        with:
+          name: mac-portable-package
+          path: dist/*.dmg
 
   windows_build:
     name: Build and Package on Windows
@@ -55,11 +62,18 @@ jobs:
           pip install --upgrade pip
           cd builder
           python build_uaaccess.py
+          python build_uaaccess.py zip
         env:
           BRIEFCASE_PLATFORM: windows
 
-      - name: Upload artifacts
+      - name: Upload installer
         uses: actions/upload-artifact@v3
         with:
-          name: windows-package
-          path: dist/*
+          name: windows-installer-package
+          path: dist/*.msi
+
+      - name: Upload portable
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-portable-package
+          path: dist/*.zip
