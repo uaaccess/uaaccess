@@ -1,6 +1,8 @@
 """
 A screen-reader-accessible alternative to the Universal Audio Console software.
 """
+
+from ._version import __version__
 import toga
 from . import speech
 from .connection_requester import ConnectionRequester
