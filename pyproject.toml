@@ -43,6 +43,7 @@ requires = [
 requires = [
     "toga-gtk~=0.4.4",
 ]
+supported = false
 
 
 [tool.briefcase.app.uaaccess.linux.system.debian]
@@ -62,6 +63,7 @@ system_runtime_requires = [
     # Needed to provide WebKit2 at runtime
     # "gir1.2-webkit2-4.0",
 ]
+supported = false
 
 
 [tool.briefcase.app.uaaccess.linux.system.rhel]
@@ -82,6 +84,7 @@ system_runtime_requires = [
     # Needed to provide WebKit2 at runtime
     # "webkit2gtk3",
 ]
+supported = false
 
 
 [tool.briefcase.app.uaaccess.linux.system.suse]
@@ -103,6 +106,7 @@ system_runtime_requires = [
     # "libwebkit2gtk3",
     # "typelib(WebKit2)",
 ]
+supported = false
 
 
 [tool.briefcase.app.uaaccess.linux.system.arch]
@@ -131,6 +135,7 @@ system_runtime_requires = [
     # Needed to provide WebKit2 at runtime
     # "webkit2gtk",
 ]
+supported = false
 
 
 [tool.briefcase.app.uaaccess.linux.appimage]
@@ -153,12 +158,14 @@ system_requires = [
 linuxdeploy_plugins = [
     "DEPLOY_GTK_VERSION=3 gtk",
 ]
+supported = false
 
 
 [tool.briefcase.app.uaaccess.linux.flatpak]
 flatpak_runtime = "org.gnome.Platform"
 flatpak_runtime_version = "45"
 flatpak_sdk = "org.gnome.Sdk"
+supported = false
 
 
 [tool.briefcase.app.uaaccess.windows]
@@ -174,21 +181,21 @@ requires = [
     "toga-iOS~=0.4.4",
     "std-nslog~=1.0.0",
 ]
+supported = false
 
 
 [tool.briefcase.app.uaaccess.android]
 requires = [
     "toga-android~=0.4.4",
 ]
-
 base_theme = "Theme.MaterialComponents.Light.DarkActionBar"
-
 build_gradle_dependencies = [
     "androidx.appcompat:appcompat:1.6.1",
     "com.google.android.material:material:1.11.0",
     # Needed for DetailedList
     "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0",
 ]
+supported = false
 
 
 # Web deployments
@@ -197,5 +204,8 @@ requires = [
     "toga-web~=0.4.4",
 ]
 style_framework = "Shoelace v2.3"
+supported = false
 
 
+[tool.pytype]
+inputs = ['builder', 'src/uaaccess']
