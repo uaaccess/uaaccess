@@ -206,6 +206,3 @@ requires = [
 style_framework = "Shoelace v2.3"
 supported = false
 
-
-[tool.pytype]
-inputs = ['builder', 'src/uaaccess']

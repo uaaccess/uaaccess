@@ -1,8 +1,8 @@
 import sys
 if sys.platform == "win32":
-	from cytolk import tolk
+	from cytolk import tolk  # pylint: disable=import-error
 elif sys.platform == "darwin":
-	from . import nsss
+	from . import nsss  # pylint: disable=import-error
 
 synth = None
 

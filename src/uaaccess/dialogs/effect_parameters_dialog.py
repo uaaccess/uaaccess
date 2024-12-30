@@ -1,7 +1,6 @@
 import toga
 from .. import network
 from pedalboard import load_plugin
-import os.path
 import platform
 from blinker import signal
 

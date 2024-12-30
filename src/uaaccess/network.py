@@ -4,11 +4,9 @@ import platform
 if sys.platform == "darwin" and platform.machine() == "x86_64":
 	import json
 else:
-	from cysimdjson import *
-from inspect import iscoroutinefunction
-from typing import *
+	from cysimdjson import JSONParser
+from typing import List, Optional, Union, Any, Dict
 from ipaddress import IPv4Address, IPv6Address
-from . import speech
 from blinker import signal
 import time
 
@@ -52,7 +50,7 @@ class NetworkManager:
 			components.pop()
 		return value
 
-	def prop_display_name(self, name: str):
+	def prop_display_name(self, name: str) -> str:
 		return self.friendly_prop_map.get(name, name)
 
 	def get_inputs(self, device: int) -> Dict[str, Any]:
@@ -70,28 +68,28 @@ class NetworkManager:
 		auxs= auxs["children"]
 		return auxs
 
-	def get_input(self, device: int, input: int):
+	def get_input(self, device: int, input: int) -> dict[str, Any]:
 		inp = self.get(f"/devices/{device}/inputs/{input}")
 		return inp
 
-	def get_output(self, device: int, output: int):
+	def get_output(self, device: int, output: int) -> dict[str, Any]:
 		outp = self.get(f"/devices/{device}/outputs/{output}")
 		return outp
 
-	def get_aux(self, device: int, aux: int):
+	def get_aux(self, device: int, aux: int) -> dict[str, Any]:
 		auxp = self.get(f"/devices/{device}/auxs/{aux}")
 		return auxp
 
-	def get_preamp(self, device: int, input: int, preamp: int):
+	def get_preamp(self, device: int, input: int, preamp: int) -> dict[str, Any]:
 		amp = self.get(f"/devices/{device}/inputs/{input}/preamps/{preamp}")
 		return amp
 
-	def get_all_input_sends(self, device: int, input: int):
+	def get_all_input_sends(self, device: int, input: int) -> dict[str, Any]:
 		sends = self.get(f"/devices/{device}/inputs/{input}/sends")
 		sends= sends["children"]
 		return sends
 
-	def get_all_aux_sends(self, device: int, aux: int):
+	def get_all_aux_sends(self, device: int, aux: int) -> dict[str, Any]:
 		sends = self.get(f"/devices/{device}/auxs/{aux}/sends")
 		sends= sends["children"]
 		return sends
@@ -100,17 +98,17 @@ class NetworkManager:
 		effects = self.get(f"/devices/{device}/inputs/{input}/preamps/0/effects")
 		return None if effects is None else effects["children"]
 
-	def get_all_plugins(self):
+	def get_all_plugins(self) -> Optional[dict[str, Any]]:
 		plugins = self.get("/plugins")
 		return None if plugins is None else plugins["children"]
 
-	def get_all_preamp_effect_parameters(self, device: int, input: int):
+	def get_all_preamp_effect_parameters(self, device: int, input: int) -> Optional[dict[str, Any]]:
 		parameters = self.get(f"/devices/{device}/inputs/{input}/preamps/0/effects/0/parameters")
 		return None if parameters is None else parameters["children"]
 
 	def get(self, path: str) -> Optional[Union[Dict[str, Any], bool, int, str, float]]:
 		parts: List[str] = path.strip('/').split('/')
-		current: JSONObject = self.tree['data']
+		current: Any = self.tree['data']
 		for i, part in enumerate(parts):
 			if 'properties' in current and part[0].isupper():
 				if part in current['properties']:
@@ -136,13 +134,11 @@ class NetworkManager:
 
 	def set(self, path: str, value: Union[bool, int, str, float]):
 		parts: List[str] = path.strip('/').split('/')
-		current: JSONObject = self.tree['data']
+		current: Any = self.tree['data']
 		last_part: str = parts[-1]
-		visited_properties: bool = False
 		for part in parts:
 			if 'properties' in current and part in current['properties']:
 				current = current['properties'][part]
-				visited_properties = True
 				break
 			elif 'children' in current and part in current['children']:
 				current = current['children'][part]
@@ -203,12 +199,12 @@ class NetworkManager:
 		if "error" in resp:
 			print (f"Warning: {resp["path"]}: {resp["error"]}")
 			return
-		if not "data" in resp or not "path" in resp:
+		if "data" not in resp or "path" not in resp:
 			print(f"Warning: received invalid response: {message}")
 			return
 		data: Union[Dict[str, Any], int, float, bool] = resp['data']
 		path: str = resp['path']
-		if not isinstance(data, Dict) or not "children" in data or not "properties" in data:
+		if not isinstance(data, Dict) or "children" not in data or "properties" not in data:
 			self.set(path, data)
 			if not self.handle_events_normally.is_set():
 				return

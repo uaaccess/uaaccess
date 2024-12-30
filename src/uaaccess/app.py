@@ -10,7 +10,6 @@ from . import network
 import traceback
 import os
 import cProfile
-from operator import itemgetter
 from ipaddress import IPv4Address, IPv6Address
 from typing import Union, Optional
 from . import events
@@ -63,13 +62,16 @@ class UAAccess(toga.App):
 
 	def build_input_widgets(self, inp: int) -> Optional[toga.Box]:
 		input = self.instance.get_input(0, inp)
-		if "Active" in input["properties"] and not input["properties"]["Active"]["value"]: return None
-		if input is None: return None
+		if "Active" in input["properties"] and not input["properties"]["Active"]["value"]:
+			return None
+		if input is None:
+			return None
 		box = toga.Box(style=Pack(direction = COLUMN, padding=5))
 		props = input["properties"]
 		inputname = props["Name"]["value"]
 		for name, prop in props.items():
-			if name not in self.ui_required_input_props or "value" not in prop: continue
+			if name not in self.ui_required_input_props or "value" not in prop:
+				continue
 			path = f"/devices/0/inputs/{inp}/{name}/value"
 			match prop["type"]:
 				case "bool":
@@ -108,7 +110,8 @@ class UAAccess(toga.App):
 			return box
 		props = preamp["properties"]
 		for name, prop in props.items():
-			if name not in self.ui_required_preamp_props: continue
+			if name not in self.ui_required_preamp_props:
+				continue
 			path = f"/devices/0/inputs/{inp}/preamps/0/{name}/value"
 			match prop["type"]:
 				case "bool":
@@ -148,13 +151,16 @@ class UAAccess(toga.App):
 
 	def build_output_widgets(self, outp: int) -> Optional[toga.Box]:
 		output = self.instance.get_output(0, outp)
-		if "Active" in output["properties"] and not output["properties"]["Active"]["value"]: return None
-		if output is None: return None
+		if "Active" in output["properties"] and not output["properties"]["Active"]["value"]:
+			return None
+		if output is None:
+			return None
 		box = toga.Box(style=Pack(direction = COLUMN, padding=5))
 		props = output["properties"]
 		outputname = props["Name"]["value"]
 		for name, prop in props.items():
-			if name not in self.ui_required_output_props or "value" not in prop: continue
+			if name not in self.ui_required_output_props or "value" not in prop:
+				continue
 			path = f"/devices/0/outputs/{outp}/{name}/value"
 			match prop["type"]:
 				case "bool":
@@ -191,13 +197,16 @@ class UAAccess(toga.App):
 
 	def build_aux_widgets(self, auxp: int) -> Optional[toga.Box]:
 		aux = self.instance.get_aux(0, auxp)
-		if "Active" in aux["properties"] and not aux["properties"]["Active"]["value"]: return None
-		if aux is None: return None
+		if "Active" in aux["properties"] and not aux["properties"]["Active"]["value"]:
+			return None
+		if aux is None:
+			return None
 		box = toga.Box(style=Pack(direction = COLUMN, padding=5))
 		props = aux["properties"]
 		auxname = props["Name"]["value"]
 		for name, prop in props.items():
-			if name not in self.ui_required_aux_props or "value" not in prop: continue
+			if name not in self.ui_required_aux_props or "value" not in prop:
+				continue
 			path = f"/devices/0/auxs/{auxp}/{name}/value"
 			match prop["type"]:
 				case "bool":
@@ -373,7 +382,8 @@ class UAAccess(toga.App):
 		inputs = self.instance.get_inputs(0)
 		data = []
 		for id, input in inputs.items():
-			if "Active" in input["properties"] and not input["properties"]["Active"]["value"]: continue
+			if "Active" in input["properties"] and not input["properties"]["Active"]["value"]:
+				continue
 			data.append({"name": input["properties"]["Name"]["value"], "input_id": id})
 		self.ui_inputs_list.items = data
 		self.ui_inputs_list.value = self.ui_inputs_list.items[0]
@@ -382,7 +392,8 @@ class UAAccess(toga.App):
 		outputs = self.instance.get_outputs(0)
 		data = []
 		for id, output in outputs.items():
-			if "Active" in output["properties"] and not output["properties"]["Active"]["value"]: continue
+			if "Active" in output["properties"] and not output["properties"]["Active"]["value"]:
+				continue
 			data.append({"name": output["properties"]["Name"]["value"], "output_id": id})
 		self.ui_outputs_list.items = data
 		self.ui_outputs_list.value = self.ui_outputs_list.items[0]
@@ -391,7 +402,8 @@ class UAAccess(toga.App):
 		auxs = self.instance.get_auxs(0)
 		data = []
 		for id, aux in auxs.items():
-			if "Active" in aux["properties"] and not aux["properties"]["Active"]["value"]: continue
+			if "Active" in aux["properties"] and not aux["properties"]["Active"]["value"]:
+				continue
 			data.append({"name": aux["properties"]["Name"]["value"], "aux_id": id})
 		self.ui_auxs_list.items = data
 		self.ui_auxs_list.value = self.ui_auxs_list.items[0]
@@ -415,7 +427,8 @@ class UAAccess(toga.App):
 		await self.instance.send_request(f"set {widget.id} {widget.value}")
 
 	def on_input_selected(self, widget, *args, **kwargs):
-		if widget.value is None: return
+		if widget.value is None:
+			return
 		self.input_details_box.clear()
 		self.currently_selected_input = widget.value.input_id
 		box = self.build_input_widgets(int(widget.value.input_id))
@@ -424,7 +437,8 @@ class UAAccess(toga.App):
 		self.input_details_box.add(box)
 
 	def on_output_selected(self, widget, *args, **kwargs):
-		if widget.value is None: return
+		if widget.value is None:
+			return
 		self.output_details_box.clear()
 		self.currently_selected_output = widget.value.output_id
 		box = self.build_output_widgets(int(widget.value.output_id))
@@ -433,7 +447,8 @@ class UAAccess(toga.App):
 		self.output_details_box.add(box)
 
 	def on_aux_selected(self, widget, *args, **kwargs):
-		if widget.value is None: return
+		if widget.value is None:
+			return
 		self.aux_details_box.clear()
 		self.currently_selected_aux = widget.value.aux_id
 		box = self.build_aux_widgets(int(widget.value.aux_id))
@@ -463,7 +478,7 @@ class UAAccess(toga.App):
 		if self.instance is None:
 			await self.main_window.dialog(toga.ErrorDialog("Error", "UAAccess is not connected to a device!"))
 			return
-		fname = await self.main_window.dialog(toga.SaveFileDialog("Specify schema file name", f"schema.zip", ["zip"]))
+		fname = await self.main_window.dialog(toga.SaveFileDialog("Specify schema file name", "schema.zip", ["zip"]))
 		if fname is None:
 			await self.main_window.dialog(toga.ErrorDialog("Error", "Please specify a file name for schema export."))
 			return

@@ -19,11 +19,11 @@ import platform
 import os
 
 try:
-	from AppKit import NSSpeechSynthesizer
+	from AppKit import NSSpeechSynthesizer  # pylint: disable=import-error
 except ImportError:
 	try:
 		from Cocoa import NSSpeechSynthesizer
-	except:
+	except ImportError:
 		pass
 
 class NSSS():
@@ -36,7 +36,7 @@ class NSSS():
 		except ImportError:
 			try:
 				from Cocoa import NSSpeechSynthesizer
-			except:
+			except ImportError:
 				raise ImportError("NSSpeechSynthesizer not properly installed on this computer")
 		self.tts = NSSpeechSynthesizer.alloc().initWithVoice_(None)
 
@@ -126,4 +126,4 @@ class NSSS():
 		folder = path.replace(path.split("/")[-1],"")
 		if not os.path.isdir(folder):
 			raise RuntimeError(".wav file must be placed in a valid directory")
-		tempproc = subprocess.Popen(["say","-v",self.tts.voice().encode("ascii").split(".")[-1],"-o",path[:-4],"--data-format=LEF32@8000","--file-format=WAVE","\""+text+"\""])
+		_ = subprocess.Popen(["say","-v",self.tts.voice().encode("ascii").split(".")[-1],"-o",path[:-4],"--data-format=LEF32@8000","--file-format=WAVE","\""+text+"\""])

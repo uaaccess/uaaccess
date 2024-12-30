@@ -82,7 +82,7 @@ def main():
             sys.exit(1)
 
         print("\nVirtual environment setup complete!")
-        print(f"Activate the virtual environment by running:")
+        print("Activate the virtual environment by running:")
         if os.name == "nt":
             print(f"  {activate_script}")
         else:
