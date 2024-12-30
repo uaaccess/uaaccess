@@ -32,12 +32,14 @@ jobs:
         with:
           name: mac-installer-package
           path: dist/*.pkg
+          retention-days: 1
 
       - name: Upload portable
         uses: actions/upload-artifact@v4
         with:
           name: mac-portable-package
           path: dist/*.dmg
+          retention-days: 1
 
   windows_build:
     name: Build and Package on Windows
@@ -71,9 +73,11 @@ jobs:
         with:
           name: windows-installer-package
           path: dist/*.msi
+          retention-days: 1
 
       - name: Upload portable
         uses: actions/upload-artifact@v4
         with:
           name: windows-portable-package
           path: dist/*.zip
+          retention-days: 1
