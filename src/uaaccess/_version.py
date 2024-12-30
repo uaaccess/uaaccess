@@ -8,8 +8,8 @@ Credit for the idea taken from a Stackoverflow thread: https://stackoverflow.com
 """
 
 
-from contextlib import suppress
 import importlib.metadata
+from contextlib import suppress
 from pathlib import Path
 
 

@@ -1,6 +1,8 @@
 import toga
+
 from .. import network
 from .effect_parameters_dialog import EffectParametersDialog
+
 
 class PreampEffectsDialog(toga.Window):
 	def __init__(self, device: int, input: int):

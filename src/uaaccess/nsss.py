@@ -14,9 +14,9 @@
 # functions:	 None
 #
 
-import subprocess
-import platform
 import os
+import platform
+import subprocess
 
 try:
 	from AppKit import NSSpeechSynthesizer  # pylint: disable=import-error

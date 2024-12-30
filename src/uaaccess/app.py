@@ -2,28 +2,29 @@
 A screen-reader-accessible alternative to the Universal Audio Console software.
 """
 
-from ._version import __version__
-import toga
-from . import speech
-from .connection_requester import ConnectionRequester
-from . import network
-import traceback
-import os
+import asyncio
 import cProfile
+import json
+import os
+import sys
+import time
+import traceback
+import zipfile
 from ipaddress import IPv4Address, IPv6Address
-from typing import Union, Optional
-from . import events
+from typing import Optional, Union
+
+import aiofiles
+import clipboard
+import toga
 from blinker import signal
 from toga.style import Pack
 from toga.style.pack import COLUMN
-from .dialogs import SendsDialog, SendsType, PreampEffectsDialog
-import sys
-import zipfile
-import json
-import clipboard
-import time
-import asyncio
-import aiofiles
+
+from . import events, network, speech
+from ._version import __version__
+from .connection_requester import ConnectionRequester
+from .dialogs import PreampEffectsDialog, SendsDialog, SendsType
+
 
 class UAAccess(toga.App):
 	def startup(self):

@@ -1,8 +1,11 @@
-import toga
-from .. import network
-from pedalboard import load_plugin
 import platform
+
+import toga
 from blinker import signal
+from pedalboard import load_plugin
+
+from .. import network
+
 
 class EffectParametersDialog(toga.Window):
 	def __init__(self, device: int, input: int, effect: int, plugin: int, for_preamp: bool = True, preamp: int=0):

@@ -1,7 +1,10 @@
+from enum import Enum
+
 import toga
 from blinker import signal
+
 from .. import network
-from enum import Enum
+
 
 class SendsType (Enum):
 	INPUT = 0

@@ -1,8 +1,9 @@
 import os
+import platform
 import sys
 import venv
-import platform
-from subprocess import run, CalledProcessError
+from subprocess import CalledProcessError, run
+
 
 def run_command(command):
     """Run a shell command and handle errors."""

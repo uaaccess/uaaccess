@@ -1,7 +1,9 @@
-from . import speech
-from . import network
-from blinker import signal
 from typing import Optional
+
+from blinker import signal
+
+from . import network, speech
+
 
 async def on_selected_on_front_changed(sender, **kwargs):
 	path = kwargs["path"]

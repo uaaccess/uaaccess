@@ -1,8 +1,10 @@
+import inspect
+from ipaddress import ip_address
+
 import toga
 from toga.style import Pack
 from toga.style.pack import COLUMN, ROW
-import inspect
-from ipaddress import ip_address
+
 
 class ConnectionRequester(toga.Window):
 	def __init__(self, on_submit):

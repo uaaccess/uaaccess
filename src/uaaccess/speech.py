@@ -1,4 +1,5 @@
 import sys
+
 if sys.platform == "win32":
 	from cytolk import tolk  # pylint: disable=import-error
 elif sys.platform == "darwin":

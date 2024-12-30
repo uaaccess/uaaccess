@@ -1,14 +1,17 @@
 import asyncio
-import sys
 import platform
+import sys
+
 if sys.platform == "darwin" and platform.machine() == "x86_64":
 	import json
 else:
 	from cysimdjson import JSONParser
-from typing import Optional, Union, Any
-from ipaddress import IPv4Address, IPv6Address
-from blinker import signal
 import time
+from ipaddress import IPv4Address, IPv6Address
+from typing import Any, Optional, Union
+
+from blinker import signal
+
 
 class NetworkManager:
 	def __init__(self):
