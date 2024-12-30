@@ -23,6 +23,7 @@ import json
 import clipboard
 import time
 import asyncio
+import aiofiles
 
 class UAAccess(toga.App):
 	def startup(self):
@@ -52,12 +53,6 @@ class UAAccess(toga.App):
 		self.log_file = None
 
 	async def close_app(self, widget, **kwargs):
-		if self.log_file is not None and not self.log_file.closed:
-			self.log_file.close()
-			signal("NewPacket").disconnect(self.on_new_packet)
-		if self.profiler is not None:
-			self.profiler.disable()
-			self.profiler.print_stats()
 		self.exit()
 
 	def build_input_widgets(self, inp: int) -> Optional[toga.Box]:
@@ -472,6 +467,12 @@ class UAAccess(toga.App):
 
 	async def handle_exit(self, app, **kwargs):
 		speech.deinit()
+		if self.log_file is not None and not self.log_file.closed:
+			await self.log_file.close()
+			signal("NewPacket").disconnect(self.on_new_packet)
+		if self.profiler is not None:
+			self.profiler.disable()
+			self.profiler.print_stats()
 		return True
 
 	async def export_tree(self, command, **kwargs):
@@ -496,11 +497,11 @@ class UAAccess(toga.App):
 			return
 		try:
 			if self.log_file is not None and not self.log_file.closed:
-				self.log_file.close()
-			self.log_file = open(fname, "w")
+				await self.log_file.close()
+			self.log_file = await aiofiles.open(fname, "w")
 			for packet in self.instance.packet_log:
 				json.dump(packet, self.log_file, indent=4)
-				self.log_file.write('\n')
+				await self.log_file.write('\n')
 			self.instance.packet_log.clear()
 			signal("NewPacket").connect(self.on_new_packet)
 		except OSError as e:
@@ -510,7 +511,7 @@ class UAAccess(toga.App):
 		packet = kwargs["packet"]
 		if self.log_file is not None and not self.log_file.closed:
 			json.dump(packet, self.log_file, indent=4)
-			self.log_file.write('\n')
+			await self.log_file.write('\n')
 			self.instance.packet_log.clear()
 
 	async def add_properties_to_zip(self, zipf, properties, path):
