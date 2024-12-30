@@ -26,7 +26,7 @@ except ImportError:
 	except ImportError:
 		pass
 
-class NSSS():
+class NSSS:
 	'''NSSpeechSynthesis wrapper'''
 	def __init__(self):
 		if platform.system() != "Darwin":
@@ -71,7 +71,7 @@ class NSSS():
 		elif attribute == "rate":
 			return self.tts.rate()
 		else:
-			raise ValueError("\"%s\" not a recognized attribute" % (attribute))
+			raise ValueError(f"\"{attribute}\" not a recognized attribute")
 
 	def set(self, attribute, value):
 		'''Sets the specified attribute to the given value
@@ -82,7 +82,7 @@ class NSSS():
 			if not isinstance(value,str):
 				raise TypeError("voice must be of type \"string\"")
 			elif value not in self.available_voices():
-				raise ValueError("%s is not an available voice" % (value))
+				raise ValueError(f"{value} is not an available voice")
 			else:
 				lss = NSSpeechSynthesizer.availableVoices()
 				for ii in lss:
@@ -109,7 +109,7 @@ class NSSS():
 			else:
 				self.tts.setVolume_(value*0.01)
 		else:
-			raise ValueError("\"%s\" not a recognized attribute" % (attribute))
+			raise ValueError(f"\"{attribute}\" not a recognized attribute")
 
 	def speak_to_wav(self, text, path):
 		'''Speaks the given string of text to a .wav file and saves it to the given path'''

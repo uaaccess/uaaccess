@@ -5,7 +5,7 @@ if sys.platform == "darwin" and platform.machine() == "x86_64":
 	import json
 else:
 	from cysimdjson import JSONParser
-from typing import List, Optional, Union, Any, Dict
+from typing import Optional, Union, Any
 from ipaddress import IPv4Address, IPv6Address
 from blinker import signal
 import time
@@ -34,10 +34,10 @@ class NetworkManager:
 		if sys.executable.find("python") != -1:
 			self.packet_log = []
 
-	def get_name(self, path: str, properties: List[str]) -> Optional[str]:
+	def get_name(self, path: str, properties: list[str]) -> Optional[str]:
 		if properties is None:
 			raise RuntimeError("Properties were not specified in self.get_name")
-		components: List[str] = path.strip('/').split('/')[:-2]
+		components: list[str] = path.strip('/').split('/')[:-2]
 		value: Optional[str] = None
 		while len(components) > 0:
 			new_path: str = '/'.join(components)
@@ -53,18 +53,18 @@ class NetworkManager:
 	def prop_display_name(self, name: str) -> str:
 		return self.friendly_prop_map.get(name, name)
 
-	def get_inputs(self, device: int) -> Dict[str, Any]:
-		inputs: Dict[str, Any] = self.get(f"/devices/{device}/inputs")
+	def get_inputs(self, device: int) -> dict[str, Any]:
+		inputs: dict[str, Any] = self.get(f"/devices/{device}/inputs")
 		inputs = inputs["children"]
 		return inputs
 
-	def get_outputs(self, device: int) -> Dict[str, Any]:
-		outputs: Dict[str, Any] = self.get(f"/devices/{device}/outputs")
+	def get_outputs(self, device: int) -> dict[str, Any]:
+		outputs: dict[str, Any] = self.get(f"/devices/{device}/outputs")
 		outputs = outputs["children"]
 		return outputs
 
-	def get_auxs(self, device: int) -> Dict[str, Any]:
-		auxs: Dict[str, Any] = self.get(f"/devices/{device}/auxs")
+	def get_auxs(self, device: int) -> dict[str, Any]:
+		auxs: dict[str, Any] = self.get(f"/devices/{device}/auxs")
 		auxs= auxs["children"]
 		return auxs
 
@@ -94,7 +94,7 @@ class NetworkManager:
 		sends= sends["children"]
 		return sends
 
-	def get_all_preamp_effects(self, device: int, input: int)->Optional[Dict[str, Any]]:
+	def get_all_preamp_effects(self, device: int, input: int)->Optional[dict[str, Any]]:
 		effects = self.get(f"/devices/{device}/inputs/{input}/preamps/0/effects")
 		return None if effects is None else effects["children"]
 
@@ -106,8 +106,8 @@ class NetworkManager:
 		parameters = self.get(f"/devices/{device}/inputs/{input}/preamps/0/effects/0/parameters")
 		return None if parameters is None else parameters["children"]
 
-	def get(self, path: str) -> Optional[Union[Dict[str, Any], bool, int, str, float]]:
-		parts: List[str] = path.strip('/').split('/')
+	def get(self, path: str) -> Optional[Union[dict[str, Any], bool, int, str, float]]:
+		parts: list[str] = path.strip('/').split('/')
 		current: Any = self.tree['data']
 		for i, part in enumerate(parts):
 			if 'properties' in current and part[0].isupper():
@@ -133,7 +133,7 @@ class NetworkManager:
 		return current
 
 	def set(self, path: str, value: Union[bool, int, str, float]):
-		parts: List[str] = path.strip('/').split('/')
+		parts: list[str] = path.strip('/').split('/')
 		current: Any = self.tree['data']
 		last_part: str = parts[-1]
 		for part in parts:
@@ -202,13 +202,13 @@ class NetworkManager:
 		if "data" not in resp or "path" not in resp:
 			print(f"Warning: received invalid response: {message}")
 			return
-		data: Union[Dict[str, Any], int, float, bool] = resp['data']
+		data: Union[dict[str, Any], int, float, bool] = resp['data']
 		path: str = resp['path']
-		if not isinstance(data, Dict) or "children" not in data or "properties" not in data:
+		if not isinstance(data, dict) or "children" not in data or "properties" not in data:
 			self.set(path, data)
 			if not self.handle_events_normally.is_set():
 				return
-			components: List[str] = path.strip('/').split('/')
+			components: list[str] = path.strip('/').split('/')
 			propname: Optional[str] = None
 			if components[-1] == "value":
 				propname = components[-2]

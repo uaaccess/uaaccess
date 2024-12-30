@@ -1,14 +1,14 @@
 from . import speech
 from . import network
 from blinker import signal
-from typing import List, Optional
+from typing import Optional
 
 async def on_selected_on_front_changed(sender, **kwargs):
 	path = kwargs["path"]
 	data = kwargs["data"]
 	if path in network.instance.cache and network.instance.cache[path] == data:
 		return
-	properties: List[str] = ["Name", "EffectName", "DeviceName"]
+	properties: list[str] = ["Name", "EffectName", "DeviceName"]
 	name: Optional[str] = network.instance.get_name(path, properties)
 	if data:
 		if name is None:
@@ -22,7 +22,7 @@ async def on_48_v_changed(sender, **kwargs):
 	data = kwargs["data"]
 	if path in network.instance.cache and network.instance.cache[path] == data:
 		return
-	properties: List[str] = ["Name", "EffectName", "DeviceName"]
+	properties: list[str] = ["Name", "EffectName", "DeviceName"]
 	name: Optional[str] = network.instance.get_name(path, properties)
 	speech.speak(f"{name} 48V {"on" if data else "off"}")
 	network.instance.cache[path] = data
@@ -32,7 +32,7 @@ async def on_cr_monitor_level_changed(sender, **kwargs):
 	data = kwargs["data"]
 	if path in network.instance.cache and network.instance.cache[path] == data:
 		return
-	properties: List[str] = ["Name", "EffectName", "DeviceName"]
+	properties: list[str] = ["Name", "EffectName", "DeviceName"]
 	name: Optional[str] = network.instance.get_name(path, properties)
 	speech.speak(f"{name} level {data}")
 	network.instance.cache[path] = data
@@ -50,7 +50,7 @@ async def on_dim_on_changed(sender, **kwargs):
 	data = kwargs["data"]
 	if path in network.instance.cache and network.instance.cache[path] == data:
 		return
-	properties: List[str] = ["Name", "EffectName", "DeviceName"]
+	properties: list[str] = ["Name", "EffectName", "DeviceName"]
 	name: Optional[str] = network.instance.get_name(path, properties)
 	speech.speak(f"{name} dim {"on" if data else "off"}")
 	network.instance.cache[path] = data
@@ -60,7 +60,7 @@ async def on_gain_changed(sender, **kwargs):
 	data = kwargs["data"]
 	if path in network.instance.cache and network.instance.cache[path] == data:
 		return
-	properties: List[str] = ["Name", "EffectName", "DeviceName"]
+	properties: list[str] = ["Name", "EffectName", "DeviceName"]
 	name: Optional[str] = network.instance.get_name(path, properties)
 	speech.speak(f"{name} gain {data:.1F}")
 	network.instance.cache[path] = data
@@ -70,7 +70,7 @@ async def on_hi_z_changed(sender, **kwargs):
 	data = kwargs["data"]
 	if path in network.instance.cache and network.instance.cache[path] == data:
 		return
-	properties: List[str] = ["Name", "EffectName", "DeviceName"]
+	properties: list[str] = ["Name", "EffectName", "DeviceName"]
 	name: Optional[str] = network.instance.get_name(path, properties)
 	speech.speak(f"{name} Hi Z {"on" if data else "off"}")
 	network.instance.cache[path] = data
@@ -80,7 +80,7 @@ async def on_io_type_changed(sender, **kwargs):
 	data = kwargs["data"]
 	if path in network.instance.cache and network.instance.cache[path] == data:
 		return
-	properties: List[str] = ["Name", "EffectName", "DeviceName"]
+	properties: list[str] = ["Name", "EffectName", "DeviceName"]
 	name: Optional[str] = network.instance.get_name(path, properties)
 	speech.speak(f"{name} IO type {data}")
 	network.instance.cache[path] = data
@@ -90,7 +90,7 @@ async def on_low_cut_changed(sender, **kwargs):
 	data = kwargs["data"]
 	if path in network.instance.cache and network.instance.cache[path] == data:
 		return
-	properties: List[str] = ["Name", "EffectName", "DeviceName"]
+	properties: list[str] = ["Name", "EffectName", "DeviceName"]
 	name: Optional[str] = network.instance.get_name(path, properties)
 	speech.speak(f"{name} low cut {"on" if data else "off"}")
 	network.instance.cache[path] = data
@@ -100,7 +100,7 @@ async def on_mix_to_mono_changed(sender, **kwargs):
 	data = kwargs["data"]
 	if path in network.instance.cache and network.instance.cache[path] == data:
 		return
-	properties: List[str] = ["Name", "EffectName", "DeviceName"]
+	properties: list[str] = ["Name", "EffectName", "DeviceName"]
 	name: Optional[str] = network.instance.get_name(path, properties)
 	speech.speak(f"{name} sum {"on" if data else "off"}")
 	network.instance.cache[path] = data
@@ -110,7 +110,7 @@ async def on_mute_changed(sender, **kwargs):
 	data = kwargs["data"]
 	if path in network.instance.cache and network.instance.cache[path] == data:
 		return
-	properties: List[str] = ["Name", "EffectName", "DeviceName"]
+	properties: list[str] = ["Name", "EffectName", "DeviceName"]
 	name: Optional[str] = network.instance.get_name(path, properties)
 	speech.speak(f"{name} mute {"on" if data else "off"}")
 	network.instance.cache[path] = data
@@ -120,7 +120,7 @@ async def on_pad_changed(sender, **kwargs):
 	data = kwargs["data"]
 	if path in network.instance.cache and network.instance.cache[path] == data:
 		return
-	properties: List[str] = ["Name", "EffectName", "DeviceName"]
+	properties: list[str] = ["Name", "EffectName", "DeviceName"]
 	name: Optional[str] = network.instance.get_name(path, properties)
 	speech.speak(f"{name} pad {"on" if data else "off"}")
 	network.instance.cache[path] = data
@@ -130,7 +130,7 @@ async def on_stereo_changed(sender, **kwargs):
 	data = kwargs["data"]
 	if path in network.instance.cache and network.instance.cache[path] == data:
 		return
-	properties: List[str] = ["Name", "EffectName", "DeviceName"]
+	properties: list[str] = ["Name", "EffectName", "DeviceName"]
 	name: Optional[str] = network.instance.get_name(path, properties)
 	speech.speak(f"{name} stereo link {"on" if data else"off"}")
 	network.instance.cache[path] = data
@@ -148,7 +148,7 @@ async def on_device_online_changed(sender, **kwargs):
 	data = kwargs["data"]
 	if path in network.instance.cache and network.instance.cache[path] == data:
 		return
-	properties: List[str] = ["Name", "EffectName", "DeviceName"]
+	properties: list[str] = ["Name", "EffectName", "DeviceName"]
 	name: Optional[str] = network.instance.get_name(path, properties)
 	speech.speak(f"{name} {"on" if data else "off"}")
 	network.instance.cache[path] = data
@@ -161,7 +161,7 @@ async def on_phase_changed(sender, **kwargs):
 	data = kwargs["data"]
 	if path in network.instance.cache and network.instance.cache[path] == data:
 		return
-	properties: List[str] = ["Name", "EffectName", "DeviceName"]
+	properties: list[str] = ["Name", "EffectName", "DeviceName"]
 	name: Optional[str] = network.instance.get_name(path, properties)
 	speech.speak(f"{name} phase {"on" if data else "off"}")
 	network.instance.cache[path] = data
