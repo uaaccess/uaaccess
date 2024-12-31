@@ -578,12 +578,12 @@ class UAAccess(toga.App):
 			latest_release = repo.get_latest_release()
 			tag_name = latest_release.tag_name.lstrip('vV')
 			parsed_version = version.parse(tag_name)
-			current_version = version.parse(app.version.lstrip('vV'))
+			current_version = version.parse(self.app.version.lstrip('vV'))
 			if parsed_version > current_version:
 				is_installed = False
 				if sys.platform == "win32":
 					try:
-						key = OpenKeyEx(HKEY_CURRENT_USER, rf"SOFTWARE\{app.author}\UAAccess", 0, KEY_READ)
+						key = OpenKeyEx(HKEY_CURRENT_USER, rf"SOFTWARE\{self.app.author}\UAAccess", 0, KEY_READ)
 						is_installed = bool(QueryValueEx(key, "installed")[0])
 					except FileNotFoundError:
 						pass
@@ -592,7 +592,7 @@ class UAAccess(toga.App):
 						async with aiofiles.open(f"/var/db/receipts/{self.app_id}.uaaccess.plist", "rb") as f:
 							data = await f.read()
 							plist = plistlib.loads(data)
-							if plist and "packageVersion" in plist and plist["packageVersion"] == app.version:
+							if plist and "packageVersion" in plist and plist["packageVersion"] == self.app.version:
 								is_installed = True
 					except (FileNotFoundError, plistlib.InvalidFileException):
 						pass

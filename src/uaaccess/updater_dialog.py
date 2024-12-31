@@ -6,9 +6,10 @@ import aiohttp
 from github import GitReleaseAsset
 import sys
 import subprocess
+import asyncio
 
 class UpdaterDialog(toga.Window):
-	def __init__(asset: GitReleaseAsset):
+	def __init__(self, asset: GitReleaseAsset):
 		super().__init__(title="Downloading update", size=(400, 200))
 		self.content = toga.Box(style=Pack(direction=COLUMN, padding=10))
 		self.content.add(toga.Label("Please wait while the update is downloaded"))
@@ -39,14 +40,14 @@ class UpdaterDialog(toga.Window):
 									progress = downloaded / total_size * 100
 									self.update_progress.value = progress
 			self.update_progress.stop()
-	except asyncio.CancelledError:
-		self.update_progress.stop()
-		if destination.exists():
-			await aiofiles.os.remove(destination)
-		return
-	except Exception as e:
-		await self.app.dialog(toga.ErrorDialog("Error", f"Update download failed: {e!s}"))
-		return
+		except asyncio.CancelledError:
+			self.update_progress.stop()
+			if destination.exists():
+				await aiofiles.os.remove(destination)
+			return
+		except Exception as e:
+			await self.app.dialog(toga.ErrorDialog("Error", f"Update download failed: {e!s}"))
+			return
 
 	async def cancel_download(self):
 		self.download_task.cancel()
