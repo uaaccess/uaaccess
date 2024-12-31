@@ -27,18 +27,42 @@ jobs:
         env:
           BRIEFCASE_PLATFORM: macOS
 
+      - name: Find installer package
+        id: find_installer
+        run: |
+          artifact=$(ls dist/*.pkg 2>/dev/null | head -n 1)
+          if [ -z "$artifact" ]; then
+            echo "Error: No .pkg file found in the dist directory."
+            exit 1
+          fi
+          artifact_name=$(basename "$artifact")
+          echo "artifact_path=$artifact" >> $GITHUB_OUTPUT
+          echo "artifact_name=$artifact_name" >> $GITHUB_OUTPUT
+
+      - name: Find portable package
+        id: find_portable
+        run: |
+          artifact=$(ls dist/*.zip 2>/dev/null | head -n 1)
+          if [ -z "$artifact" ]; then
+            echo "Error: No .zip file found in the dist directory."
+            exit 1
+          fi
+          artifact_name=$(basename "$artifact")
+          echo "artifact_path=$artifact" >> $GITHUB_OUTPUT
+          echo "artifact_name=$artifact_name" >> $GITHUB_OUTPUT
+
       - name: Upload installer
         uses: actions/upload-artifact@v4
         with:
-          name: mac-installer-package
-          path: dist/*.pkg
+          name: ${{ steps.find_installer.outputs.artifact_name }}
+          path: ${{ steps.find_installer.outputs.artifact_path }}
           retention-days: 1
 
       - name: Upload portable
         uses: actions/upload-artifact@v4
         with:
-          name: mac-portable-package
-          path: dist/*.dmg
+          name: ${{ steps.find_portable.outputs.artifact_name }}
+          path: ${{ steps.find_portable.outputs.artifact_path }}
           retention-days: 1
 
   windows_build:
@@ -55,7 +79,7 @@ jobs:
 
       - name: Install Visual Studio Build Tools
         run: |
-          choco install -y visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --quiet --norestart"
+          choco install -y visualstudio2022buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --quiet --norestart"
 
       - name: Install dependencies and run build script
         run: |
@@ -68,16 +92,48 @@ jobs:
         env:
           BRIEFCASE_PLATFORM: windows
 
+      - name: Find installer package
+        id: find_installer
+        shell: pwsh
+        run: |
+          $pattern = 'dist\*.msi'
+          $artifact = Get-ChildItem -Path $pattern -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $artifact) {
+            Write-Error "Error: No .msi file found in the dist directory."
+            exit 1
+          }
+          $artifactPath = $artifact.FullName
+          $artifactName = $artifact.Name
+          "$env:GITHUB_OUTPUT" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "artifact_path=$artifactPath" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "artifact_name=$artifactName" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Find portable package
+        id: find_portable
+        shell: pwsh
+        run: |
+          $pattern = 'dist\*.zip'
+          $artifact = Get-ChildItem -Path $pattern -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $artifact) {
+            Write-Error "Error: No .zip file found in the dist directory."
+            exit 1
+          }
+          $artifactPath = $artifact.FullName
+          $artifactName = $artifact.Name
+          "$env:GITHUB_OUTPUT" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "artifact_path=$artifactPath" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "artifact_name=$artifactName" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
       - name: Upload installer
         uses: actions/upload-artifact@v4
         with:
-          name: windows-installer-package
-          path: dist/*.msi
+          name: ${{ steps.find_installer.outputs.artifact_name }}
+          path: ${{ steps.find_installer.outputs.artifact_path }}
           retention-days: 1
 
       - name: Upload portable
         uses: actions/upload-artifact@v4
         with:
-          name: windows-portable-package
-          path: dist/*.zip
+          name: ${{ steps.find_portable.outputs.artifact_name }}
+          path: ${{ steps.find_installer.outputs.artifact_path }}
           retention-days: 1

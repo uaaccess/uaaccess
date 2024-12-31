@@ -1,7 +1,7 @@
 # This project was generated with 0.3.17 using template: https://github.com/beeware/briefcase-template@v0.3.17
 [tool.briefcase]
 project_name = "UAAccess"
-bundle = "org.uaaccess.uaaccess"
+bundle = "org.uaaccess"
 version = "0.0.1"
 url = "https://uaaccess.org"
 license.file = "LICENSE"
@@ -11,7 +11,7 @@ author_email = "N/A"
 [tool.briefcase.app.uaaccess]
 formal_name = "UAAccess"
 description = "A screen-reader-accessible alternative to the Universal Audio Console software."
-long_description = """More details about the app should go here.
+long_description = """UAAccess is a screen-reader friendly alternative to the UA console software.
 """
 icon = "src/uaaccess/resources/uaaccess"
 sources = [
@@ -22,11 +22,13 @@ test_sources = [
 ]
 
 requires = [
-    "blinker~=1.9.0",
+    "blinker~=1.9",
     "clipboard~=0.0.4",
     "cysimdjson~=23.8 ; (sys_platform != 'darwin') and (platform_machine != 'x86_64')",
     "pedalboard~=0.9",
     "aiofiles~=24.1",
+    "pygithub~=2.5",
+    "aiohttp~=3.11",
 ]
 test_requires = [    "pytest", "hypothesis"]
 
