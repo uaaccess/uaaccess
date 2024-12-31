@@ -42,9 +42,9 @@ jobs:
       - name: Find portable package
         id: find_portable
         run: |
-          artifact=$(ls dist/*.zip 2>/dev/null | head -n 1)
+          artifact=$(ls dist/*.dmg 2>/dev/null | head -n 1)
           if [ -z "$artifact" ]; then
-            echo "Error: No .zip file found in the dist directory."
+            echo "Error: No .dmg file found in the dist directory."
             exit 1
           fi
           artifact_name=$(basename "$artifact")
