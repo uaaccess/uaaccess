@@ -24,7 +24,7 @@ test_sources = [
 requires = [
     "blinker~=1.9.0",
     "clipboard~=0.0.4",
-    "cysimdjson~=23.8 ; (sys_platform != 'darwin') or (platform_machine != 'x86_64')",
+    "cysimdjson~=23.8 ; (sys_platform != 'darwin') and (platform_machine != 'x86_64')",
     "pedalboard~=0.9",
     "aiofiles~=24.1",
 ]
