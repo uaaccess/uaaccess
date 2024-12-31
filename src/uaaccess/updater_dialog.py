@@ -1,12 +1,14 @@
-import toga
-from toga.style import Pack
-from toga.style.pack import COLUMN, ROW
+import asyncio
+import subprocess
+import sys
+
 import aiofiles
 import aiohttp
+import toga
 from github import GitReleaseAsset
-import sys
-import subprocess
-import asyncio
+from toga.style import Pack
+from toga.style.pack import COLUMN
+
 
 class UpdaterDialog(toga.Window):
 	def __init__(self, asset: GitReleaseAsset):
@@ -40,6 +42,12 @@ class UpdaterDialog(toga.Window):
 									progress = downloaded / total_size * 100
 									self.update_progress.value = progress
 			self.update_progress.stop()
+			await self.app.dialog(toga.InfoDialog("Done", "The update has been downloaded and is ready to be installed. Click okay to proceed with the installation."))
+			if sys.platform == "win32":
+				subprocess.Popen(f"msiexec {destination!s}")
+			else:
+				subprocess.Popen(f"open {destination!s}")
+			self.app.request_exit()
 		except asyncio.CancelledError:
 			self.update_progress.stop()
 			if destination.exists():

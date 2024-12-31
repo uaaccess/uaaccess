@@ -14,26 +14,28 @@ from ipaddress import IPv4Address, IPv6Address
 from typing import Optional, Union
 
 import aiofiles
+import aioping
 import clipboard
 import toga
 from blinker import signal
+from github import Github, GithubException
+from packaging import version
+from packaging.version import InvalidVersion
 from toga.style import Pack
 from toga.style.pack import COLUMN
 
 from . import events, network, speech
-from ._version import __version__
 from .connection_requester import ConnectionRequester
 from .dialogs import PreampEffectsDialog, SendsDialog, SendsType
-import aioping
-from github import Github, GithubException
-from packaging import version
-from packaging.version import InvalidVersion
+
 if sys.platform == "win32":
-	from winreg import OpenKeyEx, QueryValueEx, HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER, KEY_READ
+	from winreg import HKEY_CURRENT_USER, KEY_READ, OpenKeyEx, QueryValueEx
 else:
 	import plistlib
 import socket
+
 from .updater_dialog import UpdaterDialog
+
 
 class UAAccess(toga.App):
 	def startup(self):
@@ -596,6 +598,9 @@ class UAAccess(toga.App):
 								is_installed = True
 					except (FileNotFoundError, plistlib.InvalidFileException):
 						pass
+				if not is_installed:
+					await self.dialog(toga.InfoDialog("Update available", f"UAAccess {parsed_version!s} is available! Please visit https://uaaccess.org to download it."))
+					return
 				perform_update = await self.dialog(toga.QuestionDialog("Update available", "An update to UAAccess is available. Would you like to upgrade now?"))
 				if perform_update:
 					try:
