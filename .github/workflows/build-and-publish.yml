@@ -10,6 +10,9 @@ jobs:
   mac_build:
     name: Build and Package on MacOS
     runs-on: macos-latest
+    outputs:
+      mac_installer_name: ${{ steps.find_installer.outputs.artifact_name }}
+      mac_portable_name: ${{ steps.find_portable.outputs.artifact_name }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -30,23 +33,50 @@ jobs:
         env:
           BRIEFCASE_PLATFORM: macOS
 
+      - name: Find installer package
+        id: find_installer
+        run: |
+          artifact=$(ls dist/*.pkg 2>/dev/null | head -n 1)
+          if [ -z "$artifact" ]; then
+            echo "Error: No .pkg file found in the dist directory."
+            exit 1
+          fi
+          artifact_name=$(basename "$artifact")
+          echo "artifact_path=$artifact" >> $GITHUB_OUTPUT
+          echo "artifact_name=$artifact_name" >> $GITHUB_OUTPUT
+
+      - name: Find portable package
+        id: find_portable
+        run: |
+          artifact=$(ls dist/*.dmg 2>/dev/null | head -n 1)
+          if [ -z "$artifact" ]; then
+            echo "Error: No .dmg file found in the dist directory."
+            exit 1
+          fi
+          artifact_name=$(basename "$artifact")
+          echo "artifact_path=$artifact" >> $GITHUB_OUTPUT
+          echo "artifact_name=$artifact_name" >> $GITHUB_OUTPUT
+
       - name: Upload installer
         uses: actions/upload-artifact@v4
         with:
-          name: mac-installer-package
-          path: dist/*.pkg
+          name: ${{ steps.find_installer.outputs.artifact_name }}
+          path: ${{ steps.find_installer.outputs.artifact_path }}
           retention-days: 1
 
       - name: Upload portable
         uses: actions/upload-artifact@v4
         with:
-          name: mac-portable-package
-          path: dist/*.dmg
+          name: ${{ steps.find_portable.outputs.artifact_name }}
+          path: ${{ steps.find_portable.outputs.artifact_path }}
           retention-days: 1
 
   windows_build:
     name: Build and Package on Windows
     runs-on: windows-latest
+    outputs:
+      windows_installer_name: ${{ steps.find_installer.outputs.artifact_name }}
+      windows_portable_name: ${{ steps.find_portable.outputs.artifact_name }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -58,7 +88,7 @@ jobs:
 
       - name: Install Visual Studio Build Tools
         run: |
-          choco install -y visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --quiet --norestart"
+          choco install -y visualstudio2022buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --quiet --norestart"
 
       - name: Install dependencies and run build script
         run: |
@@ -71,18 +101,48 @@ jobs:
         env:
           BRIEFCASE_PLATFORM: windows
 
+      - name: Find installer package
+        id: find_installer
+        shell: pwsh
+        run: |
+          $pattern = 'dist\*.msi'
+          $artifact = Get-ChildItem -Path $pattern -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $artifact) {
+            Write-Error "Error: No .msi file found in the dist directory."
+            exit 1
+          }
+          $artifactPath = $artifact.FullName
+          $artifactName = $artifact.Name
+          "artifact_path=$artifactPath" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "artifact_name=$artifactName" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Find portable package
+        id: find_portable
+        shell: pwsh
+        run: |
+          $pattern = 'dist\*.zip'
+          $artifact = Get-ChildItem -Path $pattern -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $artifact) {
+            Write-Error "Error: No .zip file found in the dist directory."
+            exit 1
+          }
+          $artifactPath = $artifact.FullName
+          $artifactName = $artifact.Name
+          "artifact_path=$artifactPath" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "artifact_name=$artifactName" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
       - name: Upload installer
         uses: actions/upload-artifact@v4
         with:
-          name: windows-installer-package
-          path: dist/*.msi
+          name: ${{ steps.find_installer.outputs.artifact_name }}
+          path: ${{ steps.find_installer.outputs.artifact_path }}
           retention-days: 1
 
       - name: Upload portable
         uses: actions/upload-artifact@v4
         with:
-          name: windows-portable-package
-          path: dist/*.zip
+          name: ${{ steps.find_portable.outputs.artifact_name }}
+          path: ${{ steps.find_portable.outputs.artifact_path }}
           retention-days: 1
 
   publish:
@@ -96,26 +156,26 @@ jobs:
       - name: Download MacOS Installer
         uses: actions/download-artifact@v4
         with:
-          name: mac-installer-package
+          name: ${{ needs.mac_build.outputs.mac_installer_name }}
           path: artifacts/mac/installer
 
       - name: Download MacOS Portable
         uses: actions/download-artifact@v4
         with:
-          name: mac-portable-package
+          name: ${{ needs.mac_build.outputs.mac_portable_name }}
           path: artifacts/mac/portable
 
       # Download Windows Artifacts
       - name: Download Windows Installer
         uses: actions/download-artifact@v4
         with:
-          name: windows-installer-package
+          name: ${{ needs.windows_build.outputs.windows_installer_name }}
           path: artifacts/windows/installer
 
       - name: Download Windows Portable
         uses: actions/download-artifact@v4
         with:
-          name: windows-portable-package
+          name: ${{ needs.windows_build.outputs.windows_portable_name }}
           path: artifacts/windows/portable
 
       # Create GitHub Release
@@ -129,8 +189,8 @@ jobs:
             ### Release Notes
             - Automated release for ${{ github.ref_name }}
             - Includes MacOS and Windows builds (Installer and Portable)
-          draft: true
-          prerelease: false
+          draft: false
+          prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -139,16 +199,16 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/mac/installer/*.pkg
-          asset_name: mac-installer.pkg
+          asset_path: artifacts/mac/installer/${{ needs.mac_build.outputs.mac_installer_name }}
+          asset_name: ${{ needs.mac_build.outputs.mac_installer_name }}
           asset_content_type: application/octet-stream
 
       - name: Upload MacOS Portable Release Asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/mac/portable/*.dmg
-          asset_name: mac-portable.dmg
+          asset_path: artifacts/mac/portable/${{ needs.mac_build.outputs.mac_portable_name }}
+          asset_name: ${{ needs.mac_build.outputs.mac_portable_name }}
           asset_content_type: application/octet-stream
 
       # Upload Windows Artifacts
@@ -156,14 +216,14 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/windows/installer/*.msi
-          asset_name: windows-installer.msi
+          asset_path: artifacts/windows/installer/${{ needs.windows_build.outputs.windows_installer_name }}
+          asset_name: ${{ needs.windows_build.outputs.windows_installer_name }}
           asset_content_type: application/octet-stream
 
       - name: Upload Windows Portable Release Asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/windows/portable/*.zip
-          asset_name: windows-portable.zip
+          asset_path: artifacts/windows/portable/${{ needs.windows_build.outputs.windows_portable_name }}
+          asset_name: ${{ needs.windows_build.outputs.windows_portable_name }}
           asset_content_type: application/zip
