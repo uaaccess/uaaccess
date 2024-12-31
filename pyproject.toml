@@ -29,6 +29,7 @@ requires = [
     "aiofiles~=24.1",
     "pygithub~=2.5",
     "aiohttp~=3.11",
+    "packaging~=24.2",
 ]
 test_requires = [    "pytest", "hypothesis"]
 

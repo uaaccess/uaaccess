@@ -24,7 +24,16 @@ from . import events, network, speech
 from ._version import __version__
 from .connection_requester import ConnectionRequester
 from .dialogs import PreampEffectsDialog, SendsDialog, SendsType
-
+import aioping
+from github import Github, GithubException
+from packaging import version
+from packaging.version import InvalidVersion
+if sys.platform == "win32":
+	from winreg import OpenKeyEx, QueryValueEx, HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER, KEY_READ
+else:
+	import plistlib
+import socket
+from .updater_dialog import UpdaterDialog
 
 class UAAccess(toga.App):
 	def startup(self):
@@ -32,6 +41,7 @@ class UAAccess(toga.App):
 			self.profiler = cProfile.Profile()
 			self.profiler.enable()
 		speech.init()
+		self.loop.create_task(self.do_update_check())
 		self.ui_required_input_props = ["FaderLevel", "IOType", "Mute", "RecordPreEffects", "Solo"]
 		self.ui_required_output_props = ["MixToMono", "MixInSource", "Pad", "AltMonTrim", "AltMonEnabled", "Mute", "CRMonitorLevel", "MirrorsToDigital", "DimOn"]
 		self.ui_required_aux_props = ["Gain", "Mute", "FaderLevel", "MixToMono", "Isolate", "SendPostFader"]
@@ -549,6 +559,77 @@ class UAAccess(toga.App):
 		ctx.append(''.join(traceback.format_exception(context["exception"])))
 		clipboard.copy(os.linesep.join(ctx))
 		self.exit()
+
+	async def do_update_check(self):
+		try:
+			await aioping.ping("google.com")
+		except socket.error:
+			return
+		except NotImplementedError:
+			try:
+				reader, writer = await asyncio.wait_for(asyncio.open_connection("google.com", 80, limit=2**32), 1)
+				_ = await reader.read()
+				writer.close()
+			except (socket.error, TimeoutError):
+				return
+		g = Github()
+		repo = g.get_repo("uaaccess/uaaccess")
+		try:
+			latest_release = repo.get_latest_release()
+			tag_name = latest_release.tag_name.lstrip('vV')
+			parsed_version = version.parse(tag_name)
+			current_version = version.parse(app.version.lstrip('vV'))
+			if parsed_version > current_version:
+				is_installed = False
+				if sys.platform == "win32":
+					try:
+						key = OpenKeyEx(HKEY_CURRENT_USER, rf"SOFTWARE\{app.author}\UAAccess", 0, KEY_READ)
+						is_installed = bool(QueryValueEx(key, "installed")[0])
+					except FileNotFoundError:
+						pass
+				else:
+					try:
+						async with aiofiles.open(f"/var/db/receipts/{self.app_id}.uaaccess.plist", "rb") as f:
+							data = await f.read()
+							plist = plistlib.loads(data)
+							if plist and "packageVersion" in plist and plist["packageVersion"] == app.version:
+								is_installed = True
+					except (FileNotFoundError, plistlib.InvalidFileException):
+						pass
+				perform_update = await self.dialog(toga.QuestionDialog("Update available", "An update to UAAccess is available. Would you like to upgrade now?"))
+				if perform_update:
+					try:
+						assets = latest_release.get_assets()
+						selected_asset = None
+						if sys.platform == "win32":
+							if is_installed:
+								for asset in assets:
+									if asset.name.endswith(".msi"):
+										selected_asset = asset
+										break
+							else:
+								for asset in assets:
+									if asset.name.endswith(".zip"):
+										selected_asset = asset
+										break
+						elif sys.platform == "darwin":
+							if is_installed:
+								for asset in assets:
+									if asset.name.endswith(".pkg"):
+										selected_asset = asset
+										break
+							else:
+								for asset in assets:
+									if asset.name.endswith(".dmg"):
+										selected_asset = asset
+										break
+						dialog = UpdaterDialog(selected_asset)
+						dialog.show()
+					except GithubException:
+						await self.dialog(toga.ErrorDialog("Error", "The update package could not be acquired. Please try again later."))
+						return
+		except (GithubException, InvalidVersion):
+			return
 
 def main():
 	return UAAccess()
