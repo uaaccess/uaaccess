@@ -83,33 +83,33 @@ class UAAccess(toga.App):
 			path = f"/devices/0/inputs/{inp}/{name}/value"
 			match prop["type"]:
 				case "bool":
-					toggle = toga.Switch(f"{inputname} {self.instance.prop_display_name(name)}", id=path, value=prop["value"] if "value" in prop else False, enabled = not prop["readonly"] if "readonly" in prop else True, on_change=self.on_prop_bool_toggle)
+					toggle = toga.Switch(f"{inputname} {self.instance.prop_display_name(name)}", id=path, value=prop.get("value", False), enabled = not prop["readonly"] if "readonly" in prop else True, on_change=self.on_prop_bool_toggle)
 					box.add(toggle)
 				case "string":
 					label = toga.Label(f"{inputname} {self.instance.prop_display_name(name)}")
 					edit = None
 					if "values" in prop:
-						edit = toga.Selection(id=path, items=prop["values"], value=prop["value"] if "value" in prop else None, on_change=self.on_prop_string_enum_change, enabled=not prop["readonly"] if "readonly" in prop else True)
+						edit = toga.Selection(id=path, items=prop["values"], value=prop.get("value", None), on_change=self.on_prop_string_enum_change, enabled=not prop.get("readonly", True))
 					else:
-						edit = toga.TextInput(id=path, value=prop["value"] if "value" in prop else None, readonly = prop["readonly"] if "readonly" in prop else True if name == "IOType" else False, on_confirm=self.on_prop_string_change)
+						edit = toga.TextInput(id=path, value=prop.get("value", None), readonly = prop.get("readonly", True), on_confirm=self.on_prop_string_change)
 					box.add(label)
 					box.add(edit)
 				case "float":
 					label = toga.Label(f"{inputname} {self.instance.prop_display_name(name)}")
 					edit = None
 					if "values" in prop:
-						edit = toga.Selection(id=path, items=[f"{v:.1F}" for v in prop["values"]], value=prop["value"] if "value" in prop else None, on_change=self.on_prop_int_enum_change, enabled=not prop["readonly"] if "readonly" in prop else True)
+						edit = toga.Selection(id=path, items=[f"{v:.1F}" for v in prop["values"]], value=prop.get("value", None), on_change=self.on_prop_int_enum_change, enabled=not prop.get("readonly", True))
 					else:
-						edit = toga.NumberInput(id=path, value=prop["value"] if "value" in prop else None, readonly = prop["readonly"] if "readonly" in prop else False, on_change=self.on_prop_int_change, min=prop["min"] if "min" in prop else None, max=prop["max"] if "max" in prop else None, step=1.0)
+						edit = toga.NumberInput(id=path, value=prop.get("value", None), readonly = prop.get("readonly", False), on_change=self.on_prop_int_change, min=prop.get("min", None), max=prop.get("max", None), step=1.0)
 					box.add(label)
 					box.add(edit)
 				case "int" | "int64" | "pointer":
 					label = toga.Label(f"{inputname} {self.instance.prop_display_name(name)}")
 					edit = None
 					if "values" in prop:
-						edit = toga.Selection(id=path, items=[str(v) for v in prop["values"]], value=prop["value"] if "value" in prop else None, on_change=self.on_prop_int_enum_change, enabled=not prop["readonly"] if "readonly" in prop else True)
+						edit = toga.Selection(id=path, items=[str(v) for v in prop["values"]], value=prop.get("value", None), on_change=self.on_prop_int_enum_change, enabled=not prop.get("readonly", True))
 					else:
-						edit = toga.NumberInput(id=path, value=prop["value"] if "value" in prop else None, readonly = prop["readonly"] if "readonly" in prop else False, on_change=self.on_prop_int_change, min=prop["min"] if "min" in prop else None, max=prop["max"] if "max" in prop else None, step=1.0)
+						edit = toga.NumberInput(id=path, value=prop.get("value", None), readonly = prop.get("readonly", False), on_change=self.on_prop_int_change, min=prop.get("min", None), max=prop.get("max", None), step=1.0)
 					box.add(label)
 					box.add(edit)
 		preamp = self.instance.get_preamp(0, inp, 0)
@@ -123,33 +123,33 @@ class UAAccess(toga.App):
 			path = f"/devices/0/inputs/{inp}/preamps/0/{name}/value"
 			match prop["type"]:
 				case "bool":
-					toggle = toga.Switch(f"{inputname} Preamp {self.instance.prop_display_name(name)}", id=path, value=prop["value"] if "value" in prop else False, enabled = not prop["readonly"] if "readonly" in prop else True, on_change=self.on_prop_bool_toggle)
+					toggle = toga.Switch(f"{inputname} Preamp {self.instance.prop_display_name(name)}", id=path, value=prop.get("value", False), enabled = not prop["readonly"] if "readonly" in prop else True, on_change=self.on_prop_bool_toggle)
 					box.add(toggle)
 				case "string":
 					label = toga.Label(f"{inputname} Preamp {self.instance.prop_display_name(name)}")
 					edit = None
 					if "values" in prop:
-						edit = toga.Selection(id=path, items=prop["values"], value=prop["value"] if "value" in prop else None, on_change=self.on_prop_string_enum_change, enabled=not prop["readonly"] if "readonly" in prop else True)
+						edit = toga.Selection(id=path, items=prop["values"], value=prop.get("value", None), on_change=self.on_prop_string_enum_change, enabled=not prop.get("readonly", True))
 					else:
-						edit = toga.TextInput(id=path, value=prop["value"] if "value" in prop else None, readonly = prop["readonly"] if "readonly" in prop else False, on_confirm=self.on_prop_string_change)
+						edit = toga.TextInput(id=path, value=prop.get("value", None), readonly = prop.get("readonly", True), on_confirm=self.on_prop_string_change)
 					box.add(label)
 					box.add(edit)
 				case "float":
-					label = toga.Label(f"{inputname} {self.instance.prop_display_name(name)}")
+					label = toga.Label(f"{inputname} Preamp {self.instance.prop_display_name(name)}")
 					edit = None
 					if "values" in prop:
-						edit = toga.Selection(id=path, items=[f"{v:.1F}" for v in prop["values"]], value=prop["value"] if "value" in prop else None, on_change=self.on_prop_int_enum_change, enabled=not prop["readonly"] if "readonly" in prop else True)
+						edit = toga.Selection(id=path, items=[f"{v:.1F}" for v in prop["values"]], value=prop.get("value", None), on_change=self.on_prop_int_enum_change, enabled=not prop.get("readonly", True))
 					else:
-						edit = toga.NumberInput(id=path, value=prop["value"] if "value" in prop else None, readonly = prop["readonly"] if "readonly" in prop else False, on_change=self.on_prop_int_change, min=prop["min"] if "min" in prop else None, max=prop["max"] if "max" in prop else None, step=1.0)
+						edit = toga.NumberInput(id=path, value=prop.get("value", None), readonly = prop.get("readonly", False), on_change=self.on_prop_int_change, min=prop.get("min", None), max=prop.get("max", None), step=1.0)
 					box.add(label)
 					box.add(edit)
 				case "int" | "int64" | "pointer":
-					label = toga.Label(f"{inputname} {self.instance.prop_display>name(name)}")
+					label = toga.Label(f"{inputname} Preamp {self.instance.prop_display_name(name)}")
 					edit = None
 					if "values" in prop:
-						edit = toga.Selection(id=path, items=[str(v) for v in prop["values"]], value=prop["value"] if "value" in prop else None, on_change=self.on_prop_int_enum_change, enabled=not prop["readonly"] if "readonly" in prop else True)
+						edit = toga.Selection(id=path, items=[str(v) for v in prop["values"]], value=prop.get("value", None), on_change=self.on_prop_int_enum_change, enabled=not prop.get("readonly", True))
 					else:
-						edit = toga.NumberInput(id=path, value=prop["value"] if "value" in prop else None, readonly = prop["readonly"] if "readonly" in prop else False, on_change=self.on_prop_int_change, min=prop["min"] if "min" in prop else None, max=prop["max"] if "max" in prop else None, step=1.0)
+						edit = toga.NumberInput(id=path, value=prop.get("value", None), readonly = prop.get("readonly", False), on_change=self.on_prop_int_change, min=prop.get("min", None), max=prop.get("max", None), step=1.0)
 					box.add(label)
 					box.add(edit)
 		box.add(toga.Button(f"{inputname} &Sends", on_press=self.open_input_sends))
@@ -172,33 +172,33 @@ class UAAccess(toga.App):
 			path = f"/devices/0/outputs/{outp}/{name}/value"
 			match prop["type"]:
 				case "bool":
-					toggle = toga.Switch(f"{outputname} {self.instance.prop_display_name(name)}", id=path, value=prop["value"] if "value" in prop else False, enabled = not prop["readonly"] if "readonly" in prop else True, on_change=self.on_prop_bool_toggle)
+					toggle = toga.Switch(f"{outputname} {self.instance.prop_display_name(name)}", id=path, value=prop.get("value", False), enabled = not prop["readonly"] if "readonly" in prop else True, on_change=self.on_prop_bool_toggle)
 					box.add(toggle)
 				case "string":
 					label = toga.Label(f"{outputname} {self.instance.prop_display_name(name)}")
 					edit = None
 					if "values" in prop:
-						edit = toga.Selection(id=path, items=prop["values"], value=prop["value"] if "value" in prop else None, on_change=self.on_prop_string_enum_change, enabled=not prop["readonly"] if "readonly" in prop else True)
+						edit = toga.Selection(id=path, items=prop["values"], value=prop.get("value", None), on_change=self.on_prop_string_enum_change, enabled=not prop.get("readonly", True))
 					else:
-						edit = toga.TextInput(id=path, value=prop["value"] if "value" in prop else None, readonly = prop["readonly"] if "readonly" in prop else False, on_confirm=self.on_prop_string_change)
+						edit = toga.TextInput(id=path, value=prop.get("value", None), readonly = prop.get("readonly", True), on_confirm=self.on_prop_string_change)
 					box.add(label)
 					box.add(edit)
 				case "float":
 					label = toga.Label(f"{outputname} {self.instance.prop_display_name(name)}")
 					edit = None
 					if "values" in prop:
-						edit = toga.Selection(id=path, items=[f"{v:.1F}" for v in prop["values"]], value=prop["value"] if "value" in prop else None, on_change=self.on_prop_int_enum_change, enabled=not prop["readonly"] if "readonly" in prop else True)
+						edit = toga.Selection(id=path, items=[f"{v:.1F}" for v in prop["values"]], value=prop.get("value", None), on_change=self.on_prop_int_enum_change, enabled=not prop.get("readonly", True))
 					else:
-						edit = toga.NumberInput(id=path, value=prop["value"] if "value" in prop else None, readonly = prop["readonly"] if "readonly" in prop else False, on_change=self.on_prop_float_change, min=prop["min"] if "min" in prop else None, max=prop["max"] if "max" in prop else None, step=1.0)
+						edit = toga.NumberInput(id=path, value=prop.get("value", None), readonly = prop.get("readonly", False), on_change=self.on_prop_int_change, min=prop.get("min", None), max=prop.get("max", None), step=1.0)
 					box.add(label)
 					box.add(edit)
 				case "int" | "int64" | "pointer":
 					label = toga.Label(f"{outputname} {self.instance.prop_display_name(name)}")
 					edit = None
 					if "values" in prop:
-						edit = toga.Selection(id=path, items=[str(v) for v in prop["values"]], value=prop["value"] if "value" in prop else None, on_change=self.on_prop_int_enum_change, enabled=not prop["readonly"] if "readonly" in prop else True)
+						edit = toga.Selection(id=path, items=[str(v) for v in prop["values"]], value=prop.get("value", None), on_change=self.on_prop_int_enum_change, enabled=not prop.get("readonly", True))
 					else:
-						edit = toga.NumberInput(id=path, value=prop["value"] if "value" in prop else None, readonly = prop["readonly"] if "readonly" in prop else False, on_change=self.on_prop_int_change, min=prop["min"] if "min" in prop else None, max=prop["max"] if "max" in prop else None, step=1.0)
+						edit = toga.NumberInput(id=path, value=prop.get("value", None), readonly = prop.get("readonly", False), on_change=self.on_prop_int_change, min=prop.get("min", None), max=prop.get("max", None), step=1.0)
 					box.add(label)
 					box.add(edit)
 		return box
@@ -218,33 +218,33 @@ class UAAccess(toga.App):
 			path = f"/devices/0/auxs/{auxp}/{name}/value"
 			match prop["type"]:
 				case "bool":
-					toggle = toga.Switch(f"{auxname} {self.instance.prop_display_name(name)}", id=path, value=prop["value"] if "value" in prop else False, enabled = not prop["readonly"] if "readonly" in prop else True, on_change=self.on_prop_bool_toggle)
+					toggle = toga.Switch(f"{auxname} {self.instance.prop_display_name(name)}", id=path, value=prop.get("value", False), enabled = not prop["readonly"] if "readonly" in prop else True, on_change=self.on_prop_bool_toggle)
 					box.add(toggle)
 				case "string":
 					label = toga.Label(f"{auxname} {self.instance.prop_display_name(name)}")
 					edit = None
 					if "values" in prop:
-						edit = toga.Selection(id=path, items=prop["values"], value=prop["value"] if "value" in prop else None, on_change=self.on_prop_string_enum_change, enabled=not prop["readonly"] if "readonly" in prop else True)
+						edit = toga.Selection(id=path, items=prop["values"], value=prop.get("value", None), on_change=self.on_prop_string_enum_change, enabled=not prop.get("readonly", True))
 					else:
-						edit = toga.TextInput(id=path, value=prop["value"] if "value" in prop else None, readonly = prop["readonly"] if "readonly" in prop else False, on_confirm=self.on_prop_string_change)
+						edit = toga.TextInput(id=path, value=prop.get("value", None), readonly = prop.get("readonly", True), on_confirm=self.on_prop_string_change)
 					box.add(label)
 					box.add(edit)
 				case "float":
 					label = toga.Label(f"{auxname} {self.instance.prop_display_name(name)}")
 					edit = None
 					if "values" in prop:
-						edit = toga.Selection(id=path, items=[f"{v:.1F}" for v in prop["values"]], value=prop["value"] if "value" in prop else None, on_change=self.on_prop_int_enum_change, enabled=not prop["readonly"] if "readonly" in prop else True)
+						edit = toga.Selection(id=path, items=[f"{v:.1F}" for v in prop["values"]], value=prop.get("value", None), on_change=self.on_prop_int_enum_change, enabled=not prop.get("readonly", True))
 					else:
-						edit = toga.NumberInput(id=path, value=prop["value"] if "value" in prop else None, readonly = prop["readonly"] if "readonly" in prop else False, on_change=self.on_prop_float_change, min=prop["min"] if "min" in prop else None, max=prop["max"] if "max" in prop else None, step=1.0)
+						edit = toga.NumberInput(id=path, value=prop.get("value", None), readonly = prop.get("readonly", False), on_change=self.on_prop_int_change, min=prop.get("min", None), max=prop.get("max", None), step=1.0)
 					box.add(label)
 					box.add(edit)
 				case "int" | "int64" | "pointer":
 					label = toga.Label(f"{auxname} {self.instance.prop_display_name(name)}")
 					edit = None
 					if "values" in prop:
-						edit = toga.Selection(id=path, items=[str(v) for v in prop["values"]], value=prop["value"] if "value" in prop else None, on_change=self.on_prop_int_enum_change, enabled=not prop["readonly"] if "readonly" in prop else True)
+						edit = toga.Selection(id=path, items=[str(v) for v in prop["values"]], value=prop.get("value", None), on_change=self.on_prop_int_enum_change, enabled=not prop.get("readonly", True))
 					else:
-						edit = toga.NumberInput(id=path, value=prop["value"] if "value" in prop else None, readonly = prop["readonly"] if "readonly" in prop else False, on_change=self.on_prop_int_change, min=prop["min"] if "min" in prop else None, max=prop["max"] if "max" in prop else None, step=1.0)
+						edit = toga.NumberInput(id=path, value=prop.get("value", None), readonly = prop.get("readonly", False), on_change=self.on_prop_int_change, min=prop.get("min", None), max=prop.get("max", None), step=1.0)
 					box.add(label)
 					box.add(edit)
 		box.add(toga.Button(f"{auxname} &Sends", on_press=self.open_aux_sends, id=str(auxp)))

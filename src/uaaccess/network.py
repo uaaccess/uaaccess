@@ -212,11 +212,7 @@ class NetworkManager:
 			if not self.handle_events_normally.is_set():
 				return
 			components: list[str] = path.strip('/').split('/')
-			propname: Optional[str] = None
-			if components[-1] == "value":
-				propname = components[-2]
-			else:
-				propname = components[-1]
+			propname: str = components[-2] if components[-1] == "value" else components[-1]
 			sig = signal(propname)
 			await sig.send_async(self, path=path, data=data)
 		else:

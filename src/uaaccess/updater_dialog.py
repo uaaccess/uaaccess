@@ -25,22 +25,21 @@ class UpdaterDialog(toga.Window):
 		self.update_progress.start()
 		destination = self.app.paths.cache/asset.name
 		try:
-			async with aiohttp.ClientSession() as client:
-				async with client.get(asset.browser_download_url) as resp:
-					resp.raise_for_status()
-					total_size = resp.headers.get('Content-Length')
-					if total_size is None:
-						total_size = asset.size
-					async with aiofiles.open(destination, "wb") as f:
-						downloaded = 0
-						chunk_size = 1024
-						async for chunk in resp.content.iter_chunked(chunk_size):
-							if chunk:
-								await f.write(chunk)
-								downloaded += len(chunk)
-								if total_size > 0:
-									progress = downloaded / total_size * 100
-									self.update_progress.value = progress
+			async with aiohttp.ClientSession() as client, client.get(asset.browser_download_url) as resp:
+				resp.raise_for_status()
+				total_size = resp.headers.get('Content-Length')
+				if total_size is None:
+					total_size = asset.size
+				async with aiofiles.open(destination, "wb") as f:
+					downloaded = 0
+					chunk_size = 1024
+					async for chunk in resp.content.iter_chunked(chunk_size):
+						if chunk:
+							await f.write(chunk)
+							downloaded += len(chunk)
+							if total_size > 0:
+								progress = downloaded / total_size * 100
+								self.update_progress.value = progress
 			self.update_progress.stop()
 			await self.app.dialog(toga.InfoDialog("Done", "The update has been downloaded and is ready to be installed. Click okay to proceed with the installation."))
 			if sys.platform == "win32":

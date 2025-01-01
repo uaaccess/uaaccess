@@ -37,7 +37,7 @@ class SendsDialog(toga.Window):
 			else:
 				path = f"/devices/{self.device}/auxs/{self.type_id}/sends/{id}/Gain/value"
 			sendname = send["properties"]["Name"]["value"]
-			val = send["properties"]["Gain"]["value"] if "value" in send["properties"]["Gain"] else None
+			val = send["properties"]["Gain"].get("value", None)
 			default = send["properties"]["Gain"]["default"]
 			min = send["properties"]["Gain"]["min"]
 			max = send["properties"]["Gain"]["max"]

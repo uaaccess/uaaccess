@@ -17,14 +17,16 @@
 import os
 import platform
 import subprocess
+from contextlib import suppress
 
-try:
-	from AppKit import NSSpeechSynthesizer  # pylint: disable=import-error
-except ImportError:
-	try:
+NSSpeechSynthesizer = None
+
+with suppress(ImportError):
+	from AppKit import NSSpeechSynthesizer
+
+if NSSpeechSynthesizer is None:
+	with suppress(ImportError):
 		from Cocoa import NSSpeechSynthesizer
-	except ImportError:
-		pass
 
 class NSSS:
 	'''NSSpeechSynthesis wrapper'''
