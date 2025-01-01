@@ -29,7 +29,7 @@ from .connection_requester import ConnectionRequester
 from .dialogs import PreampEffectsDialog, SendsDialog, SendsType
 
 if sys.platform == "win32":
-	from winreg import HKEY_CURRENT_USER, KEY_READ, OpenKeyEx, QueryValueEx
+	from winreg import HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER, OpenKey, QueryInfoKey, EnumKey, QueryValueEx
 else:
 	import plistlib
 import socket
@@ -562,18 +562,67 @@ class UAAccess(toga.App):
 		clipboard.copy(os.linesep.join(ctx))
 		self.exit()
 
-	async def do_update_check(self):
+	async def is_internet_available(self) -> bool:
 		try:
 			await aioping.ping("google.com")
+			return True
 		except socket.error:
-			return
+			return False
 		except NotImplementedError:
 			try:
 				reader, writer = await asyncio.wait_for(asyncio.open_connection("google.com", 80, limit=2**32), 1)
 				_ = await reader.read()
 				writer.close()
+				return True
 			except (socket.error, TimeoutError):
-				return
+				return False
+
+	async def is_installed(self)->bool:
+		is_installed = False
+		if sys.platform == "win32":
+			uninstall_keys = [r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall", r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"]
+			for root in [HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER]:
+				for key_path in uninstall_keys:
+					try:
+						with OpenKey(root, key_path) as uninstall_key:
+							for i in range(0, QueryInfoKey(uninstall_key)[0]):
+								try:
+									sub_key_name = EnumKey(uninstall_key, i)
+									with OpenKey(uninstall_key, sub_key_name) as sub_key:
+										name, _ = QueryValueEx(sub_key, "DisplayName")
+										if name and name.lower() == self.formal_name.lower():
+											is_installed = True
+								except (FileNotFoundError, PermissionError):
+									continue
+					except (FileNotFoundError, PermissionError):
+						continue
+		else:
+			try:
+				async with aiofiles.open(f"/var/db/receipts/{self.app_id}.uaaccess.plist", "rb") as f:
+					data = await f.read()
+					plist = plistlib.loads(data)
+					if plist and "packageVersion" in plist and plist["packageVersion"] == self.app.version:
+						is_installed = True
+			except (FileNotFoundError, plistlib.InvalidFileException):
+				pass
+		return is_installed
+
+	async def get_required_asset(self, assets, is_installed):
+		asset_criteria = {
+			("win32", True): ".msi",
+			("win32", False): ".zip",
+			("darwin", True): ".pkg",
+			("darwin", False): ".dmg",
+		}
+		platform = sys.platform
+		desired_extension = asset_criteria.get((platform, is_installed))
+		if not desired_extension:
+			return None
+		return next((asset for asset in assets if asset.name.lower().endswith(desired_extension)), None)
+
+	async def do_update_check(self):
+		if not await self.is_internet_available():
+			return
 		g = Github()
 		repo = g.get_repo("uaaccess/uaaccess")
 		try:
@@ -582,22 +631,7 @@ class UAAccess(toga.App):
 			parsed_version = version.parse(tag_name)
 			current_version = version.parse(self.app.version.lstrip('vV'))
 			if parsed_version > current_version:
-				is_installed = False
-				if sys.platform == "win32":
-					try:
-						key = OpenKeyEx(HKEY_CURRENT_USER, rf"SOFTWARE\{self.app.author}\UAAccess", 0, KEY_READ)
-						is_installed = bool(QueryValueEx(key, "installed")[0])
-					except FileNotFoundError:
-						pass
-				else:
-					try:
-						async with aiofiles.open(f"/var/db/receipts/{self.app_id}.uaaccess.plist", "rb") as f:
-							data = await f.read()
-							plist = plistlib.loads(data)
-							if plist and "packageVersion" in plist and plist["packageVersion"] == self.app.version:
-								is_installed = True
-					except (FileNotFoundError, plistlib.InvalidFileException):
-						pass
+				is_installed = await self.is_installed()
 				if not is_installed:
 					await self.dialog(toga.InfoDialog("Update available", f"UAAccess {parsed_version!s} is available! Please visit https://uaaccess.org to download it."))
 					return
@@ -605,30 +639,8 @@ class UAAccess(toga.App):
 				if perform_update:
 					try:
 						assets = latest_release.get_assets()
-						selected_asset = None
-						if sys.platform == "win32":
-							if is_installed:
-								for asset in assets:
-									if asset.name.endswith(".msi"):
-										selected_asset = asset
-										break
-							else:
-								for asset in assets:
-									if asset.name.endswith(".zip"):
-										selected_asset = asset
-										break
-						elif sys.platform == "darwin":
-							if is_installed:
-								for asset in assets:
-									if asset.name.endswith(".pkg"):
-										selected_asset = asset
-										break
-							else:
-								for asset in assets:
-									if asset.name.endswith(".dmg"):
-										selected_asset = asset
-										break
-						dialog = UpdaterDialog(selected_asset)
+						required_asset = await self.get_required_asset(assets, is_installed)
+						dialog = UpdaterDialog(required_asset)
 						dialog.show()
 					except GithubException:
 						await self.dialog(toga.ErrorDialog("Error", "The update package could not be acquired. Please try again later."))
