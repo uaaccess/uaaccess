@@ -29,7 +29,23 @@ from .connection_requester import ConnectionRequester
 from .dialogs import PreampEffectsDialog, SendsDialog, SendsType
 
 if sys.platform == "win32":
-	from winreg import HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER, OpenKey, QueryInfoKey, EnumKey, QueryValueEx
+	import io
+	from ctypes import byref, c_int32, c_ulong, create_unicode_buffer
+
+	from win32more.Windows.Win32.Foundation import (
+		ERROR_NO_MORE_ITEMS,
+		ERROR_SUCCESS,
+	)
+	from win32more.Windows.Win32.System.ApplicationInstallationAndServicing import (
+		INSTALLPROPERTY_INSTALLEDPRODUCTNAME,
+		INSTALLSTATE_DEFAULT,
+		MSIINSTALLCONTEXT_MACHINE,
+		MSIINSTALLCONTEXT_USERMANAGED,
+		MSIINSTALLCONTEXT_USERUNMANAGED,
+		MsiEnumProductsEx,
+		MsiGetProductInfoEx,
+		MsiQueryProductState,
+	)
 else:
 	import plistlib
 import socket
@@ -580,22 +596,28 @@ class UAAccess(toga.App):
 	async def is_installed(self)->bool:
 		is_installed = False
 		if sys.platform == "win32":
-			uninstall_keys = [r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall", r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"]
-			for root in [HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER]:
-				for key_path in uninstall_keys:
-					try:
-						with OpenKey(root, key_path) as uninstall_key:
-							for i in range(0, QueryInfoKey(uninstall_key)[0]):
-								try:
-									sub_key_name = EnumKey(uninstall_key, i)
-									with OpenKey(uninstall_key, sub_key_name) as sub_key:
-										name, _ = QueryValueEx(sub_key, "DisplayName")
-										if name and name.lower() == self.formal_name.lower():
-											is_installed = True
-								except (FileNotFoundError, PermissionError):
-									continue
-					except (FileNotFoundError, PermissionError):
-						continue
+			guid = create_unicode_buffer(39)
+			product_name = create_unicode_buffer(io.DEFAULT_BUFFER_SIZE)
+			context=c_int32(0)
+			buf_size = c_ulong(io.DEFAULT_BUFFER_SIZE)
+			i = 0
+			while True:
+				buf_size = c_ulong(io.DEFAULT_BUFFER_SIZE)
+				res = MsiEnumProductsEx(None, None, MSIINSTALLCONTEXT_USERMANAGED | MSIINSTALLCONTEXT_USERUNMANAGED | MSIINSTALLCONTEXT_MACHINE, i, guid, byref(context), None, None)
+				if res == ERROR_NO_MORE_ITEMS:
+					break
+				if res != ERROR_SUCCESS:
+					# todo: log the error here
+					continue
+				res = MsiGetProductInfoEx(guid, None, context, INSTALLPROPERTY_INSTALLEDPRODUCTNAME, product_name, byref(buf_size))
+				if res != ERROR_SUCCESS:
+					# Todo: log the error here
+					continue
+				state = MsiQueryProductState(guid)
+				if product_name.value == self.formal_name and state.value == INSTALLSTATE_DEFAULT:
+					is_installed = True
+					break
+				i += 1
 		else:
 			try:
 				async with aiofiles.open(f"/var/db/receipts/{self.app_id}.uaaccess.plist", "rb") as f:

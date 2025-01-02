@@ -30,6 +30,7 @@ requires = [
     "pygithub~=2.5",
     "aiohttp~=3.11",
     "packaging~=24.2",
+    "logsetup~=1.1",
 ]
 test_requires = [    "pytest", "hypothesis"]
 
@@ -39,7 +40,7 @@ universal_build = true
 requires = [
     "toga-cocoa~=0.4.4",
     "std-nslog~=1.0.0",
-    "pyobjc~=10.2",
+    "pyobjc~=10.3",
 ]
 
 
@@ -176,6 +177,7 @@ supported = false
 requires = [
     "toga-winforms~=0.4.4",
     "cytolk~=0.1.13",
+    "win32more~=0.5",
 ]
 
 
