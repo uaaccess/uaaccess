@@ -1,4 +1,5 @@
-# This project was generated with 0.3.17 using template: https://github.com/beeware/briefcase-template@v0.3.17
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 [tool.briefcase]
 project_name = "UAAccess"
 bundle = "org.uaaccess"

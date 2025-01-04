@@ -1,4 +1,6 @@
 @echo off
+rem SPDX-License-Identifier: GPL-3.0-or-later
+
 cd ../
 SET VENV_DIR=uaaccess_env
 IF NOT EXIST %VENV_DIR% (

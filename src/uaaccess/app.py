@@ -1,6 +1,4 @@
-"""
-A screen-reader-accessible alternative to the Universal Audio Console software.
-"""
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 import asyncio
 import cProfile
