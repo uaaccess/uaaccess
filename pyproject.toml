@@ -3,7 +3,7 @@
 [tool.briefcase]
 project_name = "UAAccess"
 bundle = "org.uaaccess"
-version = "0.0.2"
+version = "0.0.3"
 url = "https://uaaccess.org"
 license.file = "LICENSE"
 author = "Dan Gililov, Ethin Probst, Ivan Soto, Carter Temm"
