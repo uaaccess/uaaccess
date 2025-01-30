@@ -17,6 +17,7 @@ long_description = """UAAccess is a screen-reader friendly alternative to the UA
 icon = "src/uaaccess/resources/uaaccess"
 sources = [
     "src/uaaccess",
+    "LICENSE",
 ]
 test_sources = [
     "tests",
@@ -31,7 +32,7 @@ requires = [
     "pygithub~=2.5",
     "aiohttp~=3.11",
     "packaging~=24.2",
-    "logsetup~=1.1",
+    "aioping~=0.4",
 ]
 test_requires = [    "pytest", "hypothesis"]
 
