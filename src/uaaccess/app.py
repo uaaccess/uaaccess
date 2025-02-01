@@ -12,7 +12,6 @@ from ipaddress import IPv4Address, IPv6Address
 from typing import Optional, Union
 
 import aiofiles
-import aioping
 import clipboard
 import toga
 from blinker import signal
@@ -578,19 +577,13 @@ class UAAccess(toga.App):
 
 	async def is_internet_available(self) -> bool:
 		try:
-			await aioping.ping("google.com")
+			reader, writer = await asyncio.wait_for(asyncio.open_connection("google.com", 80, limit=2**32), 0.3)
+			_ = await reader.read()
+			writer.close()
+			await writer.wait_closed()
 			return True
-		except socket.error:
+		except (socket.error, TimeoutError):
 			return False
-		except NotImplementedError:
-			try:
-				reader, writer = await asyncio.wait_for(asyncio.open_connection("google.com", 80, limit=2**32), 0.3)
-				_ = await reader.read()
-				writer.close()
-				await writer.wait_closed()
-				return True
-			except (socket.error, TimeoutError):
-				return False
 
 	async def is_installed(self)->bool:
 		is_installed = False
