@@ -172,8 +172,6 @@ class UAAccess(toga.App):
 
 	def build_output_widgets(self, outp: int) -> Optional[toga.Box]:
 		output = self.instance.get_output(0, outp)
-		if "Active" in output["properties"] and not output["properties"]["Active"]["value"]:
-			return None
 		if output is None:
 			return None
 		box = toga.Box(style=Pack(direction = COLUMN, padding=5))
@@ -413,8 +411,6 @@ class UAAccess(toga.App):
 		outputs = self.instance.get_outputs(0)
 		data = []
 		for id, output in outputs.items():
-			if "Active" in output["properties"] and not output["properties"]["Active"]["value"]:
-				continue
 			data.append({"name": output["properties"]["Name"]["value"], "output_id": id})
 		self.ui_outputs_list.items = data
 		self.ui_outputs_list.value = self.ui_outputs_list.items[0]
