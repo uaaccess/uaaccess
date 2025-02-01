@@ -53,6 +53,7 @@ from .updater_dialog import UpdaterDialog
 
 class UAAccess(toga.App):
 	def startup(self):
+		self.loop.set_exception_handler(self.handle_exception)
 		if sys.executable.find("python") != -1:
 			self.profiler = cProfile.Profile()
 			self.profiler.enable()
@@ -64,7 +65,6 @@ class UAAccess(toga.App):
 		self.ui_required_preamp_props = ["Gain", "48V", "LowCut", "Pad", "Phase"]
 		self.currently_selected_input, self.currently_selected_output, self.currently_selected_aux = 0, 0, 0
 		self.on_exit = self.handle_exit
-		self.loop.set_exception_handler(self.handle_exception)
 		self.main_window = toga.MainWindow(title=f"{self.formal_name} [Loading]")
 		self.input_details_box = toga.Box()
 		self.output_details_box = toga.Box()
@@ -584,7 +584,7 @@ class UAAccess(toga.App):
 			return False
 		except NotImplementedError:
 			try:
-				reader, writer = await asyncio.wait_for(asyncio.open_connection("google.com", 80, limit=2**32), 1)
+				reader, writer = await asyncio.wait_for(asyncio.open_connection("google.com", 80, limit=2**32), 0.3)
 				_ = await reader.read()
 				writer.close()
 				await writer.wait_closed()
