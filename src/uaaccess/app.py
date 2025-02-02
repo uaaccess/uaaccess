@@ -489,10 +489,10 @@ class UAAccess(toga.App):
 
 	async def handle_exit(self, app, **kwargs):
 		speech.deinit()
-		if self.log_file is not None and not self.log_file.closed:
+		if not self.is_bundled and self.log_file is not None and not self.log_file.closed:
 			await self.log_file.close()
 			signal("NewPacket").disconnect(self.on_new_packet)
-		if self.profiler is not None:
+		if not self.is_bundled and self.profiler is not None:
 			self.profiler.disable()
 			self.profiler.print_stats()
 		return True
