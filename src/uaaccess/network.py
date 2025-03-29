@@ -4,7 +4,7 @@ import asyncio
 import platform
 import sys
 
-if sys.platform == "darwin" and platform.machine() == "x86_64":
+if sys.platform == "darwin":
 	import json
 else:
 	from cysimdjson import JSONParser
@@ -33,7 +33,7 @@ class NetworkManager:
 			"RecordPreEffects": "Record Effects",
 			"SendPostFader": "Pre/Post"
 		}
-		if sys.platform != "darwin" or platform.machine() != "x86_64":
+		if sys.platform != "darwin":
 			self.json_parser = JSONParser()
 		self.handle_events_normally = asyncio.Event()
 		if sys.executable.find("python") != -1:
@@ -193,7 +193,7 @@ class NetworkManager:
 
 	async def process_message(self, message: bytes):
 		resp: dict[str, Any] = {}
-		if sys.platform == "darwin" and platform.machine() == "x86_64":
+		if sys.platform == "darwin":
 			resp = json.loads(message.decode())
 		else:
 			resp = self.json_parser.loads(message.decode()).export()
